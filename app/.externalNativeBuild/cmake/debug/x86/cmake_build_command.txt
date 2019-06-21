@@ -1,0 +1,20 @@
+Executable : /Volumes/Soft/AndroidSdk_Mac/cmake/3.10.2.4988404/bin/cmake
+arguments : 
+-H/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/src/main/cpp
+-B/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/.externalNativeBuild/cmake/debug/x86
+-DANDROID_ABI=x86
+-DANDROID_PLATFORM=android-19
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/build/intermediates/cmake/debug/obj/x86
+-DCMAKE_BUILD_TYPE=Debug
+-DANDROID_NDK=/Volumes/Soft/AndroidSdk_Mac/ndk-bundle
+-DCMAKE_CXX_FLAGS=
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_ANDROID_ARCH_ABI=x86
+-DCMAKE_SYSTEM_VERSION=19
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_ANDROID_NDK=/Volumes/Soft/AndroidSdk_Mac/ndk-bundle
+-DCMAKE_TOOLCHAIN_FILE=/Volumes/Soft/AndroidSdk_Mac/ndk-bundle/build/cmake/android.toolchain.cmake
+-G Ninja
+-DCMAKE_MAKE_PROGRAM=/Volumes/Soft/AndroidSdk_Mac/cmake/3.10.2.4988404/bin/ninja
+jvmArgs : 
+
