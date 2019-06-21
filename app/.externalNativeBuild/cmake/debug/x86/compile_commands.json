@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/.externalNativeBuild/cmake/debug/x86",
-  "command": "/Volumes/Soft/AndroidSdk_Mac/ndk-bundle/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android --gcc-toolchain=/Volumes/Soft/AndroidSdk_Mac/ndk-bundle/toolchains/x86-4.9/prebuilt/darwin-x86_64 --sysroot=/Volumes/Soft/AndroidSdk_Mac/ndk-bundle/sysroot  -Dnative_lib_EXPORTS -isystem /Volumes/Soft/AndroidSdk_Mac/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include -isystem /Volumes/Soft/AndroidSdk_Mac/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/libs/x86/include -isystem /Volumes/Soft/AndroidSdk_Mac/ndk-bundle/sources/cxx-stl/gnu-libstdc++/4.9/include/backward  -isystem /Volumes/Soft/AndroidSdk_Mac/ndk-bundle/sysroot/usr/include/i686-linux-android -D__ANDROID_API__=19 -g -DANDROID -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -Wa,--noexecstack -Wformat -Werror=format-security   -O0 -fno-limit-debug-info  -fPIC   -o CMakeFiles/native-lib.dir/native-lib.cpp.o -c /Volumes/MacData/tmp/AndroidOpenGL3Demo/app/src/main/cpp/native-lib.cpp",
-  "file": "/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/src/main/cpp/native-lib.cpp"
-}
-]

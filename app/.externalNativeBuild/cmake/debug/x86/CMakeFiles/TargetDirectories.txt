@@ -1,3 +1,0 @@
-/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/.externalNativeBuild/cmake/debug/x86/CMakeFiles/rebuild_cache.dir
-/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/.externalNativeBuild/cmake/debug/x86/CMakeFiles/edit_cache.dir
-/Volumes/MacData/tmp/AndroidOpenGL3Demo/app/.externalNativeBuild/cmake/debug/x86/CMakeFiles/native-lib.dir
