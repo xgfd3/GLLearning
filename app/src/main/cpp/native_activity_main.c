@@ -5,7 +5,6 @@
 #include "common/esUtil.h"
 #include <android_native_app_glue.h>
 #include <time.h>
-#include "shape/Triangle.h"
 
 //////////////////////////////////////////////////////////////////
 //

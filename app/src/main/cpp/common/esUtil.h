@@ -11,6 +11,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <android/log.h>
+#include <time.h>
 #include <android/native_window.h>
 
 /// esCreateWindow flag - RGB color buffer
@@ -26,9 +27,9 @@
 
 
 #define ALOGE(...)  __android_log_print(ANDROID_LOG_ERROR,"GLAPI_native", __VA_ARGS__)
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "esUtil", __VA_ARGS__))
+#define ALOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "esUtil", __VA_ARGS__))
 
-struct ESContext {
+typedef struct ESContext {
     /// Put platform specific data here
     void *platformData;
 
@@ -64,17 +65,22 @@ struct ESContext {
     void (  *keyFunc )(struct ESContext *, unsigned char, int, int);
 
     void (  *updateFunc )(struct ESContext *, float deltaTime);
-};
+} ESContext;
 
 
 void esLogMessage(const char *formatStr, ...);
 
-GLboolean esCreateWindow(struct ESContext *esContext, const char *title, GLint width, GLint height,
+GLboolean esCreateWindow(ESContext *esContext, const char *title, GLint width, GLint height,
                          GLuint flags);
 
-void
-esRegisterShutdownFunc(struct ESContext *esContext, void ( *shutdownFunc )(struct ESContext *));
+GLuint esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc );
 
-void esRegisterDrawFunc(struct ESContext *esContext, void ( *drawFunc )(struct ESContext *));
+void esRegisterShutdownFunc(ESContext *esContext, void ( *shutdownFunc )(ESContext *));
+
+void esRegisterDrawFunc(ESContext *esContext, void ( *drawFunc )(ESContext *));
+
+long esGetCurrClockTimeNs();
+
+int esMain(ESContext *esContext);
 
 #endif //ANDROIDOPENGL3DEMO_ESUTIL_H

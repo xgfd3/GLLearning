@@ -13,7 +13,7 @@ void esLogMessage(const char *formatStr, ...) {
     __android_log_print(ANDROID_LOG_INFO, "esUtil", "%s", buf);
 }
 
-GLboolean esCreateWindow(struct ESContext *esContext, const char *title, GLint width, GLint height,
+GLboolean esCreateWindow(ESContext *esContext, const char *title, GLint width, GLint height,
                          GLuint flags) {
     EGLConfig config;
     EGLint majorVersion;
@@ -100,12 +100,84 @@ GLboolean esCreateWindow(struct ESContext *esContext, const char *title, GLint w
     return GL_TRUE;
 }
 
+GLuint LoadShader(GLenum type, const char *shaderSrc) {
+    GLuint shader;
+    GLint compiled;
+
+    shader = glCreateShader(type);
+    if (shader == 0) {
+        return 0;
+    }
+
+    glShaderSource(shader, 1, &shaderSrc, NULL);
+
+    glCompileShader(shader);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+    if (!compiled) {
+        GLint infoLen = 0;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
+        if (infoLen > 1) {
+            char *infoLog = malloc(sizeof(char) * infoLen);
+            glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
+            esLogMessage("Error compiling shader:\n%s\n", infoLog);
+
+            free(infoLog);
+        }
+        glDeleteShader(shader);
+        return 0;
+    }
+
+    return shader;
+}
+
+GLuint esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc ){
+    GLuint vertexShader;
+    GLuint fragmentShader;
+    GLuint programObject;
+    GLint linked;
+
+    vertexShader = LoadShader(GL_VERTEX_SHADER, vertShaderSrc);
+    fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragShaderSrc);
+
+    programObject = glCreateProgram();
+    if (programObject == 0) {
+        return 0;
+    }
+
+    glAttachShader(programObject, vertexShader);
+    glAttachShader(programObject, fragmentShader);
+
+    glLinkProgram(programObject);
+
+    glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
+    if (!linked) {
+        GLint infoLen = 0;
+        glGetProgramiv(programObject, GL_INFO_LOG_LENGTH, &infoLen);
+
+        if (infoLen > 1) {
+            char *infoLog = malloc(sizeof(char) * infoLen);
+            glGetProgramInfoLog(programObject, infoLen, NULL, infoLog);
+            esLogMessage("Error linking program:\n%s\n", infoLog);
+            free(infoLog);
+        }
+        glDeleteProgram(programObject);
+        return 0;
+    }
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    return programObject;
+}
 
 void
-esRegisterShutdownFunc(struct ESContext *esContext, void ( *shutdownFunc )(struct ESContext *)) {
+esRegisterShutdownFunc(ESContext *esContext, void ( *shutdownFunc )(ESContext *)) {
     esContext->shutdownFunc = shutdownFunc;
 }
 
 void esRegisterDrawFunc(struct ESContext *esContext, void ( *drawFunc )(struct ESContext *)) {
     esContext->drawFunc = drawFunc;
+}
+
+long esGetCurrClockTimeNs(){
+    struct timespec time;
+    clock_gettime(CLOCK_MONOTONIC, &time);
+    return time.tv_nsec;
 }

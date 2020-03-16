@@ -1,12 +1,11 @@
 #include <jni.h>
 #include <android/native_window_jni.h>
 #include "common/esUtil.h"
-#include "shape/Triangle.h"
 
 extern JNIEXPORT void JNICALL
 Java_com_xucz_opengldemo_GLAPI_setSurface(
         JNIEnv *env,
-        jobject thiz, jobject android_surface) {
+        jclass thiz, jobject android_surface) {
 
     ANativeWindow *native_window = NULL;
     if (android_surface) {
@@ -17,7 +16,7 @@ Java_com_xucz_opengldemo_GLAPI_setSurface(
         }
     }
 
-    struct ESContext esContext;
+    ESContext esContext;
     memset(&esContext, 0, sizeof(struct ESContext));
 
     esContext.eglNativeDisplay = EGL_DEFAULT_DISPLAY;

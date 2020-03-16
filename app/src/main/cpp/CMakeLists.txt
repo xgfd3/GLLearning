@@ -26,7 +26,9 @@ add_library(
         GLAPI_native.c
         native_activity_main.c
         common/esUtil.c
-        shape/Triangle.c
+        # chapter2_shape/Triangle.c
+        # chapter6/VBO.c
+        chapter6/VAO.c
 )
 
 target_include_directories(native-lib PRIVATE
