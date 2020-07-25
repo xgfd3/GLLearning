@@ -167,14 +167,6 @@ GLuint esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc ){
     return programObject;
 }
 
-void
-esRegisterShutdownFunc(ESContext *esContext, void ( *shutdownFunc )(ESContext *)) {
-    esContext->shutdownFunc = shutdownFunc;
-}
-
-void esRegisterDrawFunc(struct ESContext *esContext, void ( *drawFunc )(struct ESContext *)) {
-    esContext->drawFunc = drawFunc;
-}
 
 long esGetCurrClockTimeNs(){
     struct timespec time;

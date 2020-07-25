@@ -5,7 +5,7 @@
 #include "Triangle.h"
 
 
-GLuint LoadShader(GLenum type, const char *shaderSrc) {
+GLuint TriangleLoadShader(GLenum type, const char *shaderSrc) {
     GLuint shader;
     GLint compiled;
 
@@ -35,8 +35,13 @@ GLuint LoadShader(GLenum type, const char *shaderSrc) {
     return shader;
 }
 
-int Init(struct ESContext *esContext) {
+int TriangleInit(struct ESContext *esContext) {
     UserData *userData = esContext->userData;
+
+    if(userData == NULL){
+        userData = malloc(sizeof(UserData));
+        esContext->userData = userData;
+    }
 
     char vShaderStr[] =
             "#version 300 es                           \n"
@@ -60,8 +65,8 @@ int Init(struct ESContext *esContext) {
     GLuint programObject;
     GLint linked;
 
-    vertexShader = LoadShader(GL_VERTEX_SHADER, vShaderStr);
-    fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fShaderStr);
+    vertexShader = TriangleLoadShader(GL_VERTEX_SHADER, vShaderStr);
+    fragmentShader = TriangleLoadShader(GL_FRAGMENT_SHADER, fShaderStr);
 
     programObject = glCreateProgram();
     if (programObject == 0) {
@@ -93,7 +98,7 @@ int Init(struct ESContext *esContext) {
     return 1;
 }
 
-void Draw(struct ESContext *esContext) {
+void TriangleDraw(struct ESContext *esContext) {
     UserData *userData = esContext->userData;
     GLfloat vVertices[] = {0.0f, 0.5f, 0.0f,
                            -0.5f, -0.5f, 0.0f,
@@ -106,21 +111,14 @@ void Draw(struct ESContext *esContext) {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
     glEnableVertexAttribArray(0);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
 }
 
-void Shutdown(struct ESContext *esContext) {
+void TriangleShutdown(struct ESContext *esContext) {
     UserData *userData = esContext->userData;
     glDeleteProgram(userData->programObject);
+    free(userData);
+    esContext->userData = NULL;
 }
 
-int esMain(struct ESContext *esContext) {
-    esContext->userData = malloc(sizeof(UserData));
-    esCreateWindow(esContext, "Hello Triangle", 320, 240, ES_WINDOW_RGB);
-    if (!Init(esContext)) {
-        return GL_FALSE;
-    }
-    esRegisterShutdownFunc(esContext, Shutdown);
-    esRegisterDrawFunc(esContext, Draw);
-    return GL_TRUE;
-}
 

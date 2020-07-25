@@ -57,14 +57,16 @@ typedef struct ESContext {
     /// EGL surface
     EGLSurface eglSurface;
 
+    // Callbacks what
+    int cb_what;
+
     /// Callbacks
+    void (  *initFunc )(struct ESContext *);
+
     void (  *drawFunc )(struct ESContext *);
 
-    void (  *shutdownFunc )(struct ESContext *);
+    void (  *uninitFunc )(struct ESContext *);
 
-    void (  *keyFunc )(struct ESContext *, unsigned char, int, int);
-
-    void (  *updateFunc )(struct ESContext *, float deltaTime);
 } ESContext;
 
 
@@ -75,12 +77,7 @@ GLboolean esCreateWindow(ESContext *esContext, const char *title, GLint width, G
 
 GLuint esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc );
 
-void esRegisterShutdownFunc(ESContext *esContext, void ( *shutdownFunc )(ESContext *));
-
-void esRegisterDrawFunc(ESContext *esContext, void ( *drawFunc )(ESContext *));
 
 long esGetCurrClockTimeNs();
-
-int esMain(ESContext *esContext);
 
 #endif //ANDROIDOPENGL3DEMO_ESUTIL_H

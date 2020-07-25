@@ -14,9 +14,7 @@ android {
                 cppFlags ""
             }
         }
-//        ndk {
-//            abiFilters "armeabi-v7a"
-//        }
+        //ndk.abiFilters 'armeabi-v7a','armv8a'
     }
     buildTypes {
         release {

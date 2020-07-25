@@ -11,7 +11,11 @@ typedef struct {
     GLuint programObject;
 } UserData;
 
-int esMain(struct ESContext *esContext);
+int TriangleInit(struct ESContext *esContext);
+
+void TriangleDraw(struct ESContext *esContext);
+
+void TriangleShutdown(struct ESContext *esContext);
 
 
 #endif //ANDROIDOPENGL3DEMO_TRIANGLE_H

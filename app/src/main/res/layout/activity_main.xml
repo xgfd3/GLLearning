@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".shape.ShapeSurfaceActivity">
+    tools:context=".MainActivity">
 
     <SurfaceView
         android:id="@+id/surfaceview"
         android:layout_width="match_parent"
-        android:layout_height="500dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center" />
 
 </FrameLayout>

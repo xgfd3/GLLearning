@@ -5,35 +5,23 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
-# build native_app_glue as a static lib
+# 编译参数
 set(${CMAKE_C_FLAGS}, "${CMAKE_C_FLAGS}")
-add_library(
-        native_app_glue
-        STATIC
-        ${ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c)
-
-# now build app's shared lib
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall -Werror")
-set(CMAKE_SHARED_LINKER_FLAGS
-        "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
-add_library(
-        # Sets the name of the library.
-        native-lib
-        # Sets the library as a shared library.
-        SHARED
-        # Provides a relative path to your source file(s).
-        GLAPI_native.c
-        native_activity_main.c
-        common/esUtil.c
-        # chapter2_shape/Triangle.c
-        # chapter6/VBO.c
-        chapter6/VAO.c
-)
+#源文件
+aux_source_directory(. src)
+aux_source_directory(./common src)
+aux_source_directory(./1_shape src)
+aux_source_directory(./2_VBO&VAO src)
 
-target_include_directories(native-lib PRIVATE
-        ${ANDROID_NDK}/sources/android/native_app_glue)
-
+#生成库
+set(lib-name native-lib)
+add_library(${lib-name} SHARED ${src})
 target_link_libraries(
-        native-lib
-        log android EGL GLESv3 native_app_glue)
+        ${lib-name}
+        log
+        android
+        EGL
+        GLESv3
+)
