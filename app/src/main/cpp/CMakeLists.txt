@@ -12,8 +12,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -Wall -Werror")
 #源文件
 aux_source_directory(. src)
 aux_source_directory(./common src)
-aux_source_directory(./1_shape src)
-aux_source_directory(./2_VBO&VAO src)
+aux_source_directory(./samples src)
 
 #生成库
 set(lib-name native-lib)

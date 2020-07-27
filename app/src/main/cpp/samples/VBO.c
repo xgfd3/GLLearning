@@ -6,8 +6,22 @@
 typedef struct {
     GLuint programObject;
     GLint offsetX;
-    GLuint vboIds[2];
+    GLuint vcVBOId;
+    GLuint indicesVBOId;
 } UserData;
+
+// 数组数据(cpu)
+GLfloat vertices[3 * (3 + 4)] =
+        {
+                -0.5f, 0.5f, 0.0f,          // v0
+                1.0f, 0.0f, 0.0f, 1.0f,     // c0
+                -1.0f, -0.5f, 0.0f,         // v1
+                0.0f, 1.0f, 1.0f, 1.0f,     // c1
+                0.0f, -0.5f, 0.0f,          // v2
+                0.0f, 0.0f, 1.0f, 1.0f      // c2
+        };
+GLushort indices[3] = {0, 1, 2};
+
 
 int VBOInit(ESContext *esContext) {
     UserData *userData = esContext->userData;
@@ -17,6 +31,20 @@ int VBOInit(ESContext *esContext) {
         esContext->userData = userData;
     }
 
+    // 使用VBO保存数组数据
+    GLuint buffer[2];
+    glGenBuffers(2, buffer);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
+
+    userData->vcVBOId = buffer[0];
+    userData->indicesVBOId = buffer[1];
+
+
+    // 编译着色器
     const char vShaderStr[] =
             "#version 300 es                            \n"
             "layout(location = 0) in vec4 a_position;   \n"
@@ -58,44 +86,13 @@ int VBOInit(ESContext *esContext) {
 }
 
 /**
- * 绘制单一颜色的三角形
- *
- * @param esContext
- */
-void VBODraw1(ESContext *esContext) {
-    UserData *userData = esContext->userData;
-    GLfloat color[4] = {1.0f, 0.0f, 0.0f, 1.0f};
-    // 3 vertices, with (x,y,z) per-vertex
-    GLfloat vertexPos[3 * 3] =
-            {
-                    0.0f, 0.5f, 0.0f, // v0
-                    -0.5f, -0.5f, 0.0f, // v1
-                    0.5f, -0.5f, 0.0f  // v2
-            };
-
-    glViewport(0, 0, esContext->width, esContext->height);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(userData->programObject);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertexPos);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttrib4fv(1, color);
-
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-
-    glDisableVertexAttribArray(0);
-}
-
-/**
  * 使用客户顶点数组绘制
  * @param vertices
  * @param vtxStride
  * @param numIndices
  * @param indices
  */
-void DrawPrimitiveWithoutVBOs(GLfloat *vertices, GLint vtxStride,
-                              GLint numIndices, GLushort *indices) {
+void DrawPrimitiveWithoutVBOs() {
 
     long start = esGetCurrClockTimeNs();
 
@@ -107,13 +104,12 @@ void DrawPrimitiveWithoutVBOs(GLfloat *vertices, GLint vtxStride,
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vtxStride, vtxBuf);
+    // 顶点坐标
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), vtxBuf);
+    // 颜色
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), vtxBuf + 3);
 
-    vtxBuf += 3;
-
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, vtxStride, vtxBuf);
-
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, indices);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -133,33 +129,22 @@ void DrawPrimitiveWithoutVBOs(GLfloat *vertices, GLint vtxStride,
  * @param indices
  */
 void
-DrawPrimitiveWithVBOs(ESContext *esContext, GLint numVertices, GLfloat *vtxBuf, GLint vtxStride,
-                      GLint numIndices, GLushort *indices) {
+DrawPrimitiveWithVBOs(GLuint vcVBOId, GLuint indicesVBOId) {
     long start = esGetCurrClockTimeNs();
 
-    UserData *userData = esContext->userData;
     GLuint offset = 0;
 
-    glGenBuffers(2, userData->vboIds);
-    glBindBuffer(GL_ARRAY_BUFFER, userData->vboIds[0]);
-    glBufferData(GL_ARRAY_BUFFER, vtxStride * numVertices, vtxBuf, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, userData->vboIds[1]);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * numIndices, indices,
-                 GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ARRAY_BUFFER, userData->vboIds[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, vcVBOId);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vtxStride, (const void *) offset);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (const void *) offset);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat),
+            (const void *) (offset + 3 * sizeof(GLfloat)));
 
-    offset += 3 * sizeof(GLfloat);
-
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, vtxStride, (const void *) offset);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, userData->vboIds[1]);
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesVBOId);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
 
 
     glDisableVertexAttribArray(0);
@@ -173,40 +158,40 @@ DrawPrimitiveWithVBOs(ESContext *esContext, GLint numVertices, GLfloat *vtxBuf, 
     esLogMessage("DrawPrimitive WithVBOs time:%ld", end - start);
 }
 
-void VBODraw2(ESContext *esContext) {
+void VBODraw(ESContext *esContext) {
     UserData *userData = esContext->userData;
-
-    GLfloat vertices[3 * (3 + 4)] =
-            {
-                    -0.5f, 0.5f, 0.0f,
-                    1.0f, 0.0f, 0.0f, 1.0f,
-                    -1.0f, -0.5f, 0.0f,
-                    0.0f, 1.0f, 1.0f, 1.0f,
-                    0.0f, -0.5f, 0.0f,
-                    0.0f, 0.0f, 1.0f, 1.0f
-            };
-    GLushort indices[3] = {0, 1, 2};
-
+    if(userData == NULL){
+        return;
+    }
     glViewport(0, 0, esContext->width, esContext->height);
     glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+
     glUseProgram(userData->programObject);
 
     glUniform1f(userData->offsetX, 0);
 
-    DrawPrimitiveWithoutVBOs(vertices,
-                             sizeof(GLfloat) * (3 + 4),
-                             3, indices);
+    DrawPrimitiveWithoutVBOs();
 
     glUniform1f(userData->offsetX, 1.0f);
-    DrawPrimitiveWithVBOs(esContext, 3, vertices,
-                          sizeof(GLfloat) * (3 + 4),
-                          3, indices);
+    DrawPrimitiveWithVBOs(userData->vcVBOId, userData->indicesVBOId);
 }
 
 void VBOShutdown(ESContext *esContext) {
     UserData *userData = esContext->userData;
-
-    glDeleteProgram(userData->programObject);
+    if(userData == NULL){
+        return;
+    }
+    if(userData->programObject){
+        glDeleteProgram(userData->programObject);
+    }
+    if(userData->vcVBOId){
+        glDeleteBuffers(1, &userData->vcVBOId);
+    }
+    if(userData->indicesVBOId){
+        glDeleteBuffers(1, &userData->indicesVBOId);
+    }
 
     free(userData);
     esContext->userData = NULL;

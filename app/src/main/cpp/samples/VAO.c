@@ -55,7 +55,11 @@ void VAOInitialize(ESContext *esContext) {
         userData = malloc(sizeof(UserData));
         esContext->userData = userData;
     }
-    
+
+    // 生成VBO以及VAO
+    initVAO(esContext);
+
+    // 编译着色器
     const char vShaderStr[] =
             "#version 300 es                            \n"
             "layout(location = 0) in vec4 a_position;   \n"
@@ -92,38 +96,34 @@ void VAOInitialize(ESContext *esContext) {
     userData->programObject = programObject;
     userData->offsetX = glGetUniformLocation(programObject, "offsetX");
 
-    initVAO(esContext);
-
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
 }
 
 /**
- * 使用客户顶点数组绘制
+ * 使用VBO绘制
+ *
  * @param vertices
  * @param vtxStride
  * @param numIndices
  * @param indices
  */
-void DrawPrimitiveWithoutVAOs(GLfloat *vertices, GLint vtxStride,
-                              GLint numIndices, GLushort *indices) {
+void DrawPrimitiveWithoutVAOs(GLuint vcVBOId, GLuint indicesVBOId) {
 
     long start = esGetCurrClockTimeNs();
 
-    GLfloat *vtxBuf = vertices;
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, vcVBOId);
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vtxStride, vtxBuf);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7, 0);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 7,
+                          (const void *) (sizeof(GLfloat) * 3));
 
-    vtxBuf += 3;
 
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, vtxStride, vtxBuf);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesVBOId);
 
-    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_SHORT, indices);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -134,7 +134,8 @@ void DrawPrimitiveWithoutVAOs(GLfloat *vertices, GLint vtxStride,
 }
 
 /**
- * 使用顶点缓存区对象
+ * 使用VAO绘制
+ *
  * @param esContext
  * @param numVertices
  * @param vtxBuf
@@ -142,14 +143,10 @@ void DrawPrimitiveWithoutVAOs(GLfloat *vertices, GLint vtxStride,
  * @param numIndices
  * @param indices
  */
-void
-DrawPrimitiveWithVAOs(ESContext *esContext, GLint numVertices, GLfloat *vtxBuf, GLint vtxStride,
-                      GLint numIndices, GLushort *indices) {
+void DrawPrimitiveWithVAOs(GLuint vaoId) {
     long start = esGetCurrClockTimeNs();
 
-    UserData *userData = esContext->userData;
-
-    glBindVertexArray(userData->vaoId);
+    glBindVertexArray(vaoId);
 
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, (const void *) 0);
 
@@ -162,40 +159,38 @@ DrawPrimitiveWithVAOs(ESContext *esContext, GLint numVertices, GLfloat *vtxBuf, 
 
 void VAODraw(ESContext *esContext) {
     UserData *userData = esContext->userData;
-
-    GLfloat vertices[3 * (3 + 4)] =
-            {
-                    -0.5f, 0.5f, 0.0f,
-                    1.0f, 0.0f, 0.0f, 1.0f,
-                    -1.0f, -0.5f, 0.0f,
-                    0.0f, 1.0f, 1.0f, 1.0f,
-                    0.0f, -0.5f, 0.0f,
-                    0.0f, 0.0f, 1.0f, 1.0f
-            };
-    GLushort indices[3] = {0, 1, 2};
+    if(userData == NULL){
+        return;
+    }
 
     glViewport(0, 0, esContext->width, esContext->height);
     glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
     glUseProgram(userData->programObject);
 
     glUniform1f(userData->offsetX, 0);
 
-    DrawPrimitiveWithoutVAOs(vertices,
-                             sizeof(GLfloat) * (3 + 4),
-                             3, indices);
+    DrawPrimitiveWithoutVAOs(userData->vboIds[0], userData->vboIds[1]);
 
     glUniform1f(userData->offsetX, 1.0f);
-    DrawPrimitiveWithVAOs(esContext, 3, vertices,
-                          sizeof(GLfloat) * (3 + 4),
-                          3, indices);
-
+    DrawPrimitiveWithVAOs(userData->vaoId);
 }
 
 void VAOuninit(ESContext *esContext) {
     UserData *userData = esContext->userData;
-    glDeleteVertexArrays(1, &userData->vaoId);
-    glDeleteBuffers(2, userData->vboIds);
-    glDeleteProgram(userData->programObject);
+    if(userData == NULL){
+        return;
+    }
+    if(userData->vaoId){
+        glDeleteVertexArrays(1, &userData->vaoId);
+    }
+    if(userData->vboIds[0] && userData->vboIds[1]){
+        glDeleteBuffers(2, userData->vboIds);
+    }
+    if(userData->programObject){
+        glDeleteProgram(userData->programObject);
+    }
     free(userData);
     esContext->userData = NULL;
 }

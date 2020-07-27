@@ -163,7 +163,6 @@ GLuint esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc ){
         glDeleteProgram(programObject);
         return 0;
     }
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     return programObject;
 }
 

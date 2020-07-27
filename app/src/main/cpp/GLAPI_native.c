@@ -15,8 +15,8 @@ static jlong initGLEnv(JNIEnv *env,jobject thiz, jobject android_surface,
     }
 
     ESContext *esContext;
-    esContext = malloc(sizeof(struct ESContext));
-    memset(esContext, 0, sizeof(struct ESContext));
+    esContext = malloc(sizeof(ESContext));
+    memset(esContext, 0, sizeof(ESContext));
 
     esContext->eglNativeDisplay = EGL_DEFAULT_DISPLAY;
     esContext->eglNativeWindow = native_window;
@@ -35,6 +35,12 @@ static void uninitGLEnv(JNIEnv *env,jobject thiz, jlong esContext){
 
     if (_esContext->uninitFunc != NULL) {
         _esContext->uninitFunc(_esContext);
+    }
+
+    if( _esContext->imageData != NULL){
+        freeNativeImage((NativeImage* )_esContext->imageData);
+        free(_esContext->imageData);
+        _esContext->imageData = NULL;
     }
 
     free(_esContext);
@@ -78,13 +84,41 @@ static void draw(JNIEnv *env,jobject thiz, jlong esContext, jint what){
     }
 }
 
+static void setImageData(JNIEnv *env,jobject thiz, jlong esContext, jint format, jint width, jint height, jbyteArray imageData){
+    ESContext* _esContext = (ESContext*)esContext;
+    if(_esContext == NULL){
+        return;
+    }
+    jsize length = (*env)->GetArrayLength(env, imageData);
+    uint8_t *buf = malloc(length);
+    (*env)->GetByteArrayRegion(env, imageData, 0, length, buf);
+
+    NativeImage nativeImage;
+    genNativeImage(&nativeImage, format, width, height, buf);
+
+    NativeImage *sNImage = malloc(sizeof(NativeImage));
+    memset(sNImage, 0, sizeof(NativeImage));
+    copyNativeImage(&nativeImage, sNImage);
+
+    if( _esContext->imageData != NULL ){
+        freeNativeImage(_esContext->imageData);
+        free(_esContext->imageData);
+    }
+
+    _esContext->imageData = sNImage;
+
+    free(buf);
+    (*env)->DeleteLocalRef(env, imageData);
+}
+
 
 #define GLAPI_CLASS_NAME "com/xucz/opengldemo/GLAPI"
 
 static JNINativeMethod g_methods[] = {
         {"initGLEnvNative", "(Landroid/view/Surface;II)J", (void *)(initGLEnv)},
         {"uninitGLEnvNative", "(J)V", (void *)(uninitGLEnv)},
-        {"drawNative", "(JI)V", (void *)(draw)}
+        {"drawNative", "(JI)V", (void *)(draw)},
+        {"setImageData", "(JIII[B)V", (void *)(setImageData)}
 };
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved){

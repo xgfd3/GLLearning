@@ -9,9 +9,7 @@
 
 int VBOInit(ESContext *esContext);
 
-void VBODraw1(ESContext *esContext);
-
-void VBODraw2(ESContext *esContext);
+void VBODraw(ESContext *esContext);
 
 void VBOShutdown(ESContext *esContext);
 

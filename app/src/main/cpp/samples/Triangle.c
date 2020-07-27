@@ -35,7 +35,7 @@ GLuint TriangleLoadShader(GLenum type, const char *shaderSrc) {
     return shader;
 }
 
-int TriangleInit(struct ESContext *esContext) {
+int TriangleInit(ESContext *esContext) {
     UserData *userData = esContext->userData;
 
     if(userData == NULL){
@@ -98,7 +98,7 @@ int TriangleInit(struct ESContext *esContext) {
     return 1;
 }
 
-void TriangleDraw(struct ESContext *esContext) {
+void TriangleDraw(ESContext *esContext) {
     UserData *userData = esContext->userData;
     GLfloat vVertices[] = {0.0f, 0.5f, 0.0f,
                            -0.5f, -0.5f, 0.0f,
@@ -114,7 +114,7 @@ void TriangleDraw(struct ESContext *esContext) {
 
 }
 
-void TriangleShutdown(struct ESContext *esContext) {
+void TriangleShutdown(ESContext *esContext) {
     UserData *userData = esContext->userData;
     glDeleteProgram(userData->programObject);
     free(userData);

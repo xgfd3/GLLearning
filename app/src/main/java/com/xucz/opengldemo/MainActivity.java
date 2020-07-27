@@ -22,14 +22,13 @@ public class MainActivity extends AppCompatActivity {
 
     private GLRender glRender;
     private SurfaceView mSurfaceView;
-    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        glRender = new GLRender();
+        glRender = new GLRender(this);
 
         // Example of a call to a native method
         mSurfaceView = findViewById(R.id.surfaceview);
@@ -58,9 +57,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.add(0, GLRender.WHAT_DRAW_TRIANGLE, 0, "三角形");
-        menu.add(0, GLRender.WHAT_DRAW_VBO1, 0, "VBO1");
-        menu.add(0, GLRender.WHAT_DRAW_VBO2, 0, "VBO2");
+        menu.add(0, GLRender.WHAT_DRAW_TEXTUREMAP, 0, "TextureMap");
+        menu.add(0, GLRender.WHAT_DRAW_YUVTEXTUREMAP, 0, "YUVTextureMap");
+        menu.add(0, GLRender.WHAT_DRAW_VBO, 0, "VBO");
         menu.add(0, GLRender.WHAT_DRAW_VAO, 0, "VAO");
+        menu.add(0, GLRender.WHAT_DRAW_FBO, 0, "FBO");
         return true;
     }
 
@@ -68,5 +69,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         glRender.setDrawWhat(item.getItemId());
         return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        glRender.release();
     }
 }

@@ -16,6 +16,12 @@ import java.lang.annotation.Native;
  */
 public class GLAPI {
 
+    // 图像数据格式，和ImageUtils.h的类型一一对应
+    public static final int IMAGE_FORMAT_RGBA = 0x01;
+    public static final int IMAGE_FORMAT_NV21 = 0x02;
+    public static final int IMAGE_FORMAT_NV12 = 0x03;
+    public static final int IMAGE_FORMAT_I420 = 0x04;
+
     static {
         System.loadLibrary("native-lib");
     }
@@ -36,6 +42,9 @@ public class GLAPI {
         drawNative(mHandler, what);
     }
 
+    public void setImageData(int format, int width, int height, byte[] byteArray) {
+        setImageData(mHandler, format, width, height, byteArray);
+    }
 
     /**
      * A native method that is implemented by the 'native-lib' native library,
@@ -46,5 +55,8 @@ public class GLAPI {
     private native void uninitGLEnvNative(long handler);
 
     private native void drawNative(long handler, int what);
+
+    private native void setImageData(long handler, int format, int width, int height, byte[] byteArray);
+
 
 }
