@@ -29,16 +29,23 @@ public class GLAPI {
     @Native
     private long mHandler = 0;
 
-    public void initGLEnv(Surface surface, int width, int height){
-        mHandler = initGLEnvNative(surface, width, height);
+    public void initGLEnv(Surface surface) {
+        mHandler = initGLEnvNative(surface);
     }
 
-    public void uninitGLEnv(){
+    /**
+     * 创建离屏环境
+     */
+    public void initPBufferGLEnv(int width, int height) {
+        mHandler = initPBufferGLEnvNative(width, height);
+    }
+
+    public void uninitGLEnv() {
         uninitGLEnvNative(mHandler);
         mHandler = 0;
     }
 
-    public void draw(int what){
+    public void draw(int what) {
         drawNative(mHandler, what);
     }
 
@@ -46,17 +53,31 @@ public class GLAPI {
         setImageData(mHandler, format, width, height, byteArray);
     }
 
+    public void changeTouchLoc(float x, float y) {
+        changeTouchLocNative(mHandler, x, y);
+    }
+
+    public void updateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY) {
+        updateTransformMatrixNative(mHandler, rotateX, rotateY, scaleX, scaleY);
+    }
+
     /**
      * A native method that is implemented by the 'native-lib' native library,
      * which is packaged with this application.
      */
-    private native long initGLEnvNative(Surface surface, int width, int height);
+    private native long initGLEnvNative(Surface surface);
+
+    private native long initPBufferGLEnvNative(int width, int height);
 
     private native void uninitGLEnvNative(long handler);
 
     private native void drawNative(long handler, int what);
 
     private native void setImageData(long handler, int format, int width, int height, byte[] byteArray);
+
+    private native void changeTouchLocNative(long handler, float x, float y);
+
+    private native void updateTransformMatrixNative(long handler, float rotateX, float rotateY, float scaleX, float scaleY);
 
 
 }

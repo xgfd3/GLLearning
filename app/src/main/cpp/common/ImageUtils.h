@@ -4,6 +4,9 @@
 
 #ifndef ANDROIDOPENGL3DEMO_IMAGEUTILS_H
 #define ANDROIDOPENGL3DEMO_IMAGEUTILS_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -15,7 +18,7 @@
 #define IMAGE_FORMAT_NV12           0x03
 #define IMAGE_FORMAT_I420           0x04
 
-typedef struct __NativeImage{
+typedef struct __NativeImage {
     int format;
     int width;
     int height;
@@ -30,4 +33,7 @@ void freeNativeImage(NativeImage *pImage);
 
 void copyNativeImage(NativeImage *pSrcImg, NativeImage *pDesImg);
 
+#ifdef __cplusplus
+}
+#endif
 #endif //ANDROIDOPENGL3DEMO_IMAGEUTILS_H

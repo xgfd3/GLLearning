@@ -11,6 +11,10 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
+                arguments "-DANDROID_TOOLCHAIN=clang",
+                        "-DANDROID_STL=c++_static",
+                        "-DANDROID_PIE=OFF",
+                        "-DANDROID_PLATFORM=android-21"
                 cppFlags ""
             }
         }

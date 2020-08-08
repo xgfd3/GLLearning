@@ -4,7 +4,7 @@
 
 #include "ImageUtils.h"
 
-void genNativeImage(NativeImage *pImage, int format, int width, int height, uint8_t *pData){
+void genNativeImage(NativeImage *pImage, int format, int width, int height, uint8_t *pData) {
     if (pImage == NULL) {
         return;
     }
@@ -12,8 +12,7 @@ void genNativeImage(NativeImage *pImage, int format, int width, int height, uint
     pImage->width = width;
     pImage->height = height;
     pImage->ppPlane[0] = pData;
-    switch (format)
-    {
+    switch (format) {
         case IMAGE_FORMAT_NV12:
         case IMAGE_FORMAT_NV21:
             pImage->ppPlane[1] = pImage->ppPlane[0] + width * height;

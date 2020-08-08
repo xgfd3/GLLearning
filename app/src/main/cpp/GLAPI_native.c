@@ -2,8 +2,7 @@
 #include <android/native_window_jni.h>
 #include "GLAPI_native.h"
 
-static jlong initGLEnv(JNIEnv *env,jobject thiz, jobject android_surface,
-        jint width, jint height) {
+static jlong initGLEnv(JNIEnv *env,jobject thiz, jobject android_surface) {
 
     ANativeWindow *native_window = NULL;
     if (android_surface) {
@@ -21,8 +20,20 @@ static jlong initGLEnv(JNIEnv *env,jobject thiz, jobject android_surface,
     esContext->eglNativeDisplay = EGL_DEFAULT_DISPLAY;
     esContext->eglNativeWindow = native_window;
 
-    esCreateWindow(esContext, "Hello Triangle", width, height, ES_WINDOW_RGB);
+    esCreateWindow(esContext, ES_WINDOW_RGB, 0, 0);
 
+    return (jlong)esContext;
+}
+
+static jlong initPBufferGLEnv(JNIEnv *env,jobject thiz, jint width, jint height) {
+
+    ESContext *esContext;
+    esContext = malloc(sizeof(ESContext));
+    memset(esContext, 0, sizeof(ESContext));
+
+    esContext->eglNativeDisplay = EGL_DEFAULT_DISPLAY;
+
+    esCreateWindow(esContext, ES_WINDOW_RGB | ES_WINDOW_PBUFFER, width, height);
 
     return (jlong)esContext;
 }
@@ -111,14 +122,38 @@ static void setImageData(JNIEnv *env,jobject thiz, jlong esContext, jint format,
     (*env)->DeleteLocalRef(env, imageData);
 }
 
+static void changeTouchLoc(JNIEnv *env,jobject thiz, jlong esContext, jfloat x, jfloat y){
+    ESContext* _esContext = (ESContext*)esContext;
+    if(_esContext == NULL){
+        return;
+    }
+    if(_esContext->updateTouchLoc){
+        _esContext->updateTouchLoc(_esContext, x, y);
+    }
+}
+
+static void updateTransformMatrix(JNIEnv *env,jobject thiz, jlong esContext,
+        jfloat rotateX, jfloat rotateY, jfloat scaleX, jfloat scaleY){
+    ESContext* _esContext = (ESContext*)esContext;
+    if(_esContext == NULL){
+        return;
+    }
+    if(_esContext->updateTransformMatrix){
+        _esContext->updateTransformMatrix(_esContext, rotateX, rotateY, scaleX, scaleY);
+    }
+}
+
 
 #define GLAPI_CLASS_NAME "com/xucz/opengldemo/GLAPI"
 
 static JNINativeMethod g_methods[] = {
-        {"initGLEnvNative", "(Landroid/view/Surface;II)J", (void *)(initGLEnv)},
+        {"initGLEnvNative", "(Landroid/view/Surface;)J", (void *)(initGLEnv)},
+        {"initPBufferGLEnvNative", "(II)J", (void *)(initPBufferGLEnv)},
         {"uninitGLEnvNative", "(J)V", (void *)(uninitGLEnv)},
         {"drawNative", "(JI)V", (void *)(draw)},
-        {"setImageData", "(JIII[B)V", (void *)(setImageData)}
+        {"setImageData", "(JIII[B)V", (void *)(setImageData)},
+        {"changeTouchLocNative", "(JFF)V", (void *)(changeTouchLoc)},
+        {"updateTransformMatrixNative", "(JFFFF)V", (void *)(updateTransformMatrix)}
 };
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved){

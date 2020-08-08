@@ -21,19 +21,24 @@ public class GLRender implements Handler.Callback{
     private static final int FPS = 30;
 
     // 绘制类型，和GLAPI_native.h中的类型一一对应
-    public static final int WHAT_DRAW_BASE              = 100;
+    public static final int WHAT_DRAW_BASE              = 0x00000010;
     public static final int WHAT_DRAW_TRIANGLE          = WHAT_DRAW_BASE + 1;
     public static final int WHAT_DRAW_TEXTUREMAP        = WHAT_DRAW_BASE + 2;
     public static final int WHAT_DRAW_YUVTEXTUREMAP     = WHAT_DRAW_BASE + 3;
-    public static final int WHAT_DRAW_VBO              = WHAT_DRAW_BASE + 4;
+    public static final int WHAT_DRAW_VBO               = WHAT_DRAW_BASE + 4;
     public static final int WHAT_DRAW_VAO               = WHAT_DRAW_BASE + 5;
     public static final int WHAT_DRAW_FBO               = WHAT_DRAW_BASE + 6;
+    public static final int WHAT_DRAW_TRANSFORM_FEEDBACK= WHAT_DRAW_BASE + 7;
+    public static final int WHAT_DRAW_COORDINATE_SYSTEM = WHAT_DRAW_BASE + 8;
 
     // Handler消息
     private static final int WHAT_MSG_START_RENDER = 10;
     private static final int WHAT_MSG_STOP_RENDER = 11;
     private static final int WHAT_MSG_RENDER = 12;
     private static final int WHAT_MSG_DRAW_WHAT = 13;
+    private static final int WHAT_MSG_CHANGE_TOUCH_LOC = 14;
+    private static final int WHAT_MSG_UPDATE_TRANSFORM_MATRIX = 15;
+
 
 
     private final GLAPI glapi;
@@ -51,12 +56,10 @@ public class GLRender implements Handler.Callback{
         mHandler = new Handler(mGlRenderThread.getLooper(), this);
     }
 
-    public void startRender(Surface surface, int width, int height){
+    public void startRender(Surface surface){
         mHandler.removeMessages(WHAT_MSG_START_RENDER);
         mHandler.removeMessages(WHAT_MSG_RENDER);
         Message msg = mHandler.obtainMessage(WHAT_MSG_START_RENDER, surface);
-        msg.arg1 = width;
-        msg.arg2 = height;
         mHandler.sendMessage(msg);
     }
 
@@ -68,6 +71,18 @@ public class GLRender implements Handler.Callback{
         mHandler.removeMessages(WHAT_MSG_STOP_RENDER);
         mHandler.removeMessages(WHAT_MSG_RENDER);
         mHandler.sendEmptyMessage(WHAT_MSG_STOP_RENDER);
+    }
+
+    public void changeTouchLoc(float x, float y) {
+        mHandler.removeMessages(WHAT_MSG_CHANGE_TOUCH_LOC);
+        float[] obj = new float[]{x, y};
+        mHandler.sendMessage(mHandler.obtainMessage(WHAT_MSG_CHANGE_TOUCH_LOC, obj));
+    }
+
+    public void updateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY) {
+        mHandler.removeMessages(WHAT_MSG_UPDATE_TRANSFORM_MATRIX);
+        float[] obj = new float[]{rotateX, rotateY, scaleX, scaleY};
+        mHandler.sendMessage(mHandler.obtainMessage(WHAT_MSG_UPDATE_TRANSFORM_MATRIX, obj));
     }
 
     public void release(){
@@ -83,7 +98,7 @@ public class GLRender implements Handler.Callback{
                 onDrawWhatChanged();
                 break;
             case WHAT_MSG_START_RENDER:
-                glapi.initGLEnv((Surface) msg.obj, msg.arg1, msg.arg2);
+                glapi.initGLEnv((Surface) msg.obj);
                 onDrawWhatChanged();
                 mHandler.sendEmptyMessage(WHAT_MSG_RENDER);
                 break;
@@ -96,6 +111,14 @@ public class GLRender implements Handler.Callback{
                 long ct = System.currentTimeMillis() - st;
                 long delay = 1000 / FPS - ct;
                 mHandler.sendEmptyMessageDelayed(WHAT_MSG_RENDER, delay);
+                break;
+            case WHAT_MSG_CHANGE_TOUCH_LOC:
+                float[] obj = (float[]) msg.obj;
+                glapi.changeTouchLoc(obj[0], obj[1]);
+                break;
+            case WHAT_MSG_UPDATE_TRANSFORM_MATRIX:
+                float[] obj2 = (float[]) msg.obj;
+                glapi.updateTransformMatrix(obj2[0], obj2[1], obj2[2], obj2[3]);
                 break;
         }
         return true;
@@ -111,6 +134,10 @@ public class GLRender implements Handler.Callback{
                 break;
             case WHAT_DRAW_FBO:
                 loadRGBAImage(R.drawable.java);
+                break;
+            case WHAT_DRAW_TRANSFORM_FEEDBACK:
+            case WHAT_DRAW_COORDINATE_SYSTEM:
+                loadRGBAImage(R.drawable.board_texture);
                 break;
         }
     }
@@ -177,5 +204,6 @@ public class GLRender implements Handler.Callback{
             }
         }
     }
+
 
 }

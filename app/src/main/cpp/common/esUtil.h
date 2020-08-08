@@ -5,6 +5,10 @@
 #ifndef ANDROIDOPENGL3DEMO_ESUTIL_H
 #define ANDROIDOPENGL3DEMO_ESUTIL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <GLES3/gl3.h>
 #include <EGL/egl.h>
 #include <stdlib.h>
@@ -24,6 +28,8 @@
 #define ES_WINDOW_STENCIL       4
 /// esCreateWindow flat - multi-sample buffer
 #define ES_WINDOW_MULTISAMPLE   8
+/// esCreateWindow flat - multi-sample buffer
+#define ES_WINDOW_PBUFFER   16
 
 #define LOG_TAG "AndroidOpenGL3Demo"
 
@@ -75,17 +81,25 @@ typedef struct __ESContext {
 
     void (  *uninitFunc )(struct __ESContext *);
 
+    void (  *updateTouchLoc )(struct __ESContext *, GLfloat, GLfloat);
+
+    void (  *updateTransformMatrix )(struct __ESContext *, GLfloat, GLfloat, GLfloat, GLfloat);
+
 } ESContext;
 
 
 void esLogMessage(const char *formatStr, ...);
 
-GLboolean esCreateWindow(ESContext *esContext, const char *title, GLint width, GLint height,
-                         GLuint flags);
+GLboolean esCreateWindow(ESContext *esContext, GLuint flags, GLint width, GLint height);
 
-GLuint esLoadProgram ( const char *vertShaderSrc, const char *fragShaderSrc );
+GLuint
+esLoadProgram2(const char *vertShaderSrc, const char *fragShaderSrc, void (*beforeLink)(GLuint));
 
+GLuint esLoadProgram(const char *vertShaderSrc, const char *fragShaderSrc);
 
 long esGetCurrClockTimeNs();
 
+#ifdef __cplusplus
+}
+#endif
 #endif //ANDROIDOPENGL3DEMO_ESUTIL_H

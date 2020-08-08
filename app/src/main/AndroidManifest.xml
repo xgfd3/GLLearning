@@ -20,6 +20,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".EGLActivity"/>
+
         <!--<activity
             android:name="android.app.NativeActivity"
             android:configChanges="orientation|keyboardHidden"
