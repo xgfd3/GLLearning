@@ -20,16 +20,22 @@ extern "C" {
 #include "samples/FBO.h"
 #include "samples/EGL.h"
 #include "samples/TransformFeedback.h"
+#include "samples/BasicLighting.h"
+#include "samples/DepthTesting.h"
+#include "samples/StencilTesting.h"
 
 #define WHAT_DRAW_BASE 0x00000010
-#define WHAT_DRAW_TRIANGLE              WHAT_DRAW_BASE+1
-#define WHAT_DRAW_TEXTUREMAP            WHAT_DRAW_BASE+2
-#define WHAT_DRAW_YUVTEXTUREMAP         WHAT_DRAW_BASE+3
-#define WHAT_DRAW_VBO                   WHAT_DRAW_BASE+4
-#define WHAT_DRAW_VAO                   WHAT_DRAW_BASE+5
-#define WHAT_DRAW_FBO                   WHAT_DRAW_BASE+6
-#define WHAT_DRAW_TRANSFORM_FEEDBACK    WHAT_DRAW_BASE+7
-#define WHAT_DRAW_COORDER_SYSTEM        WHAT_DRAW_BASE+8
+#define WHAT_DRAW_TRIANGLE              WHAT_DRAW_BASE + 1
+#define WHAT_DRAW_TEXTUREMAP            WHAT_DRAW_BASE + 2
+#define WHAT_DRAW_YUVTEXTUREMAP         WHAT_DRAW_BASE + 3
+#define WHAT_DRAW_VBO                   WHAT_DRAW_BASE + 4
+#define WHAT_DRAW_VAO                   WHAT_DRAW_BASE + 5
+#define WHAT_DRAW_FBO                   WHAT_DRAW_BASE + 6
+#define WHAT_DRAW_TRANSFORM_FEEDBACK    WHAT_DRAW_BASE + 7
+#define WHAT_DRAW_COORDER_SYSTEM        WHAT_DRAW_BASE + 8
+#define WHAT_DRAW_BASIC_LIGHTING        WHAT_DRAW_BASE + 9
+#define WHAT_DRAW_DEPTH_TESTING         WHAT_DRAW_BASE + 10
+#define WHAT_DRAW_STENCIL_TESTING       WHAT_DRAW_BASE + 11
 
 
 #define WHAT_DRAW_EGL 0x00001000
@@ -131,6 +137,28 @@ void findAndFillDrawMethods(ESContext *esContext, int what) {
             esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
                                                          GLfloat)) CoorderSystemUpdateTransformMatrix;
             break;
+        case WHAT_DRAW_BASIC_LIGHTING:
+            esContext->initFunc = (void (*)(ESContext *)) BasicLightingInit;
+            esContext->drawFunc = (void (*)(ESContext *)) BasicLightingDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) BasicLightingUnInit;
+            esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
+                                                         GLfloat)) BasicLightingUpdateTransformMatrix;
+            break;
+        case WHAT_DRAW_DEPTH_TESTING:
+            esContext->initFunc = (void (*)(ESContext *)) DepthTestingInit;
+            esContext->drawFunc = (void (*)(ESContext *)) DepthTestingDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) DepthTestingUnInit;
+            esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
+                                                         GLfloat)) DepthTestingUpdateTransformMatrix;
+            break;
+        case WHAT_DRAW_STENCIL_TESTING:
+            esContext->initFunc = (void (*)(ESContext *)) StencilTestingInit;
+            esContext->drawFunc = (void (*)(ESContext *)) StencilTestingDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) StencilTestingUnInit;
+            esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
+                                                         GLfloat)) StencilTestingUpdateTransformMatrix;
+            break;
+
     }
 }
 

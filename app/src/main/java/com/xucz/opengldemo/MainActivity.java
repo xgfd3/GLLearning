@@ -67,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
         menu.add(0, EGLActivity.WHAT_DRAW_EGL, 0, "EGL");
         menu.add(0, GLRender.WHAT_DRAW_TRANSFORM_FEEDBACK, 0, "Transform feedback");
         menu.add(0, GLRender.WHAT_DRAW_COORDINATE_SYSTEM, 0, "Coordinate System");
+        menu.add(0, GLRender.WHAT_DRAW_BASIC_LIGHTING, 0, "基础光照");
+        menu.add(0, GLRender.WHAT_DRAW_DEPTH_TESTING, 0, "深度测试");
+        menu.add(0, GLRender.WHAT_DRAW_STENCIL_TESTING, 0, "模板测试");
         return true;
     }
 

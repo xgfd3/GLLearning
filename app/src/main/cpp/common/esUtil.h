@@ -18,6 +18,9 @@ extern "C" {
 #include <time.h>
 #include <android/native_window.h>
 
+
+#define MATH_PI 3.1415926535897932384626433832802
+
 /// esCreateWindow flag - RGB color buffer
 #define ES_WINDOW_RGB           0
 /// esCreateWindow flag - ALPHA color buffer

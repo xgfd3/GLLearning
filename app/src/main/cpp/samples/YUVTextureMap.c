@@ -103,8 +103,8 @@ void YUVTextureMapDraw(ESContext* esContext){
     }
 
     glViewport(0, 0, esContext->width, esContext->height);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glClearColor(0, 0, 0, 0);
+    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     // 确定纹理坐标和顶点坐标
     GLfloat verticesCoords[] = {

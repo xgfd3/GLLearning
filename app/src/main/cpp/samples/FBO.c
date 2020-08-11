@@ -224,6 +224,8 @@ void FBODraw(ESContext *esContext) {
     // 将imageTextureId上的图像渲染到FBO上
     glPixelStorei(GL_UNPACK_ALIGNMENT,1);
     glViewport(0, 0, esContext->width, esContext->height);
+    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glBindFramebuffer(GL_FRAMEBUFFER, userData->fboId);
     glUseProgram(userData->fboProgramId);
@@ -241,6 +243,8 @@ void FBODraw(ESContext *esContext) {
 
     // 将FBO中的图像渲染到屏幕上
     glViewport(0, 0, esContext->width, esContext->height);
+    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glUseProgram(userData->screenProgramId);
     glBindVertexArray(userData->screenvao);

@@ -20,7 +20,8 @@ static jlong initGLEnv(JNIEnv *env,jobject thiz, jobject android_surface) {
     esContext->eglNativeDisplay = EGL_DEFAULT_DISPLAY;
     esContext->eglNativeWindow = native_window;
 
-    esCreateWindow(esContext, ES_WINDOW_RGB, 0, 0);
+    // 使用深度测试时记得要先开启
+    esCreateWindow(esContext, ES_WINDOW_RGB | ES_WINDOW_DEPTH | ES_WINDOW_STENCIL | ES_WINDOW_MULTISAMPLE, 0, 0);
 
     return (jlong)esContext;
 }

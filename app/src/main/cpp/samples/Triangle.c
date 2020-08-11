@@ -94,7 +94,6 @@ int TriangleInit(ESContext *esContext) {
     }
     userData->programObject = programObject;
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     return 1;
 }
 
@@ -105,7 +104,8 @@ void TriangleDraw(ESContext *esContext) {
                            0.5f, -0.5f, 0.0f};
 
     glViewport(0, 0, esContext->width, esContext->height);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT| GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
     glUseProgram(userData->programObject);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);

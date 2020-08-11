@@ -30,6 +30,9 @@ public class GLRender implements Handler.Callback{
     public static final int WHAT_DRAW_FBO               = WHAT_DRAW_BASE + 6;
     public static final int WHAT_DRAW_TRANSFORM_FEEDBACK= WHAT_DRAW_BASE + 7;
     public static final int WHAT_DRAW_COORDINATE_SYSTEM = WHAT_DRAW_BASE + 8;
+    public static final int WHAT_DRAW_BASIC_LIGHTING    = WHAT_DRAW_BASE + 9;
+    public static final int WHAT_DRAW_DEPTH_TESTING     = WHAT_DRAW_BASE + 10;
+    public static final int WHAT_DRAW_STENCIL_TESTING   = WHAT_DRAW_BASE + 11;
 
     // Handler消息
     private static final int WHAT_MSG_START_RENDER = 10;
@@ -137,6 +140,9 @@ public class GLRender implements Handler.Callback{
                 break;
             case WHAT_DRAW_TRANSFORM_FEEDBACK:
             case WHAT_DRAW_COORDINATE_SYSTEM:
+            case WHAT_DRAW_BASIC_LIGHTING:
+            case WHAT_DRAW_DEPTH_TESTING:
+            case WHAT_DRAW_STENCIL_TESTING:
                 loadRGBAImage(R.drawable.board_texture);
                 break;
         }
