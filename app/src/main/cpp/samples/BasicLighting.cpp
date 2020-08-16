@@ -48,7 +48,7 @@ void BasicLightingInit(ESContext *esContext){
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    auto *image = static_cast<NativeImage *>(esContext->imageData);
+    auto *image = static_cast<NativeImage *>(esContext->imageData[0]);
     if(image && image->format == IMAGE_FORMAT_RGBA){
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->width, image->height, 0,
                 GL_RGBA, GL_UNSIGNED_BYTE, image->ppPlane[0]);
@@ -274,6 +274,7 @@ void BasicLightingDraw(ESContext *esContext){
     // 开启深度测试
     // ！！使用时必须在创建Windows前选配置时添加EGL_DEPTH_SIZE，否则不会生效，模块测试同理
     glEnable(GL_DEPTH_TEST);
+    glDisable(GL_STENCIL_TEST);
 
 
     glViewport(0, 0, esContext->width, esContext->height);

@@ -33,6 +33,8 @@ void freeNativeImage(NativeImage *pImage);
 
 void copyNativeImage(NativeImage *pSrcImg, NativeImage *pDesImg);
 
+void allocNativeImage2(NativeImage **pImage, int format, int width, int height, uint8_t *pData);
+
 #ifdef __cplusplus
 }
 #endif

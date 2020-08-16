@@ -23,6 +23,10 @@ extern "C" {
 #include "samples/BasicLighting.h"
 #include "samples/DepthTesting.h"
 #include "samples/StencilTesting.h"
+#include "samples/Blending.h"
+#include "samples/Instancing.h"
+#include "samples/Instancing3D.h"
+#include "samples/Particles.h"
 
 #define WHAT_DRAW_BASE 0x00000010
 #define WHAT_DRAW_TRIANGLE              WHAT_DRAW_BASE + 1
@@ -36,6 +40,10 @@ extern "C" {
 #define WHAT_DRAW_BASIC_LIGHTING        WHAT_DRAW_BASE + 9
 #define WHAT_DRAW_DEPTH_TESTING         WHAT_DRAW_BASE + 10
 #define WHAT_DRAW_STENCIL_TESTING       WHAT_DRAW_BASE + 11
+#define WHAT_DRAW_BLENDING              WHAT_DRAW_BASE + 12
+#define WHAT_DRAW_INSTANCING            WHAT_DRAW_BASE + 13
+#define WHAT_DRAW_INSTANCING3D          WHAT_DRAW_BASE + 14
+#define WHAT_DRAW_PARTICLES             WHAT_DRAW_BASE + 15
 
 
 #define WHAT_DRAW_EGL 0x00001000
@@ -158,7 +166,30 @@ void findAndFillDrawMethods(ESContext *esContext, int what) {
             esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
                                                          GLfloat)) StencilTestingUpdateTransformMatrix;
             break;
-
+        case WHAT_DRAW_BLENDING:
+            esContext->initFunc = (void (*)(ESContext *)) BlendingInit;
+            esContext->drawFunc = (void (*)(ESContext *)) BlendingDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) BlendingUnInit;
+            break;
+        case WHAT_DRAW_INSTANCING:
+            esContext->initFunc = (void (*)(ESContext *)) InstancingInit;
+            esContext->drawFunc = (void (*)(ESContext *)) InstancingDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) InstancingUnInit;
+            break;
+        case WHAT_DRAW_INSTANCING3D:
+            esContext->initFunc = (void (*)(ESContext *)) Instancing3DInit;
+            esContext->drawFunc = (void (*)(ESContext *)) Instancing3DDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) Instancing3DUnInit;
+            esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
+                                                         GLfloat)) Instancing3DUpdateTransformMatrix;
+            break;
+        case WHAT_DRAW_PARTICLES:
+            esContext->initFunc = (void (*)(ESContext *)) ParticlesInit;
+            esContext->drawFunc = (void (*)(ESContext *)) ParticlesDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) ParticlesUnInit;
+            esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
+                                                         GLfloat)) ParticlesUpdateTransformMatrix;
+            break;
     }
 }
 

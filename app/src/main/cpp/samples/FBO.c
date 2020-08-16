@@ -209,7 +209,7 @@ void FBODraw(ESContext *esContext) {
     }
 
     // 绘制Image到图像纹理
-    NativeImage *image = esContext->imageData;
+    NativeImage *image = esContext->imageData[0];
     if(image == NULL){
         return;
     }

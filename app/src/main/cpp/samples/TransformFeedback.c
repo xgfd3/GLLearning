@@ -121,7 +121,7 @@ void TransformFeedbackInit(ESContext *esContext){
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    NativeImage *imageData = esContext->imageData;
+    NativeImage *imageData = esContext->imageData[0];
     if(imageData && imageData->format == IMAGE_FORMAT_RGBA){
         glTexImage2D(GL_TEXTURE_2D, 0,
                 GL_RGBA, imageData->width, imageData->height,

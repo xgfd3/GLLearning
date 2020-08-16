@@ -70,6 +70,10 @@ public class MainActivity extends AppCompatActivity {
         menu.add(0, GLRender.WHAT_DRAW_BASIC_LIGHTING, 0, "基础光照");
         menu.add(0, GLRender.WHAT_DRAW_DEPTH_TESTING, 0, "深度测试");
         menu.add(0, GLRender.WHAT_DRAW_STENCIL_TESTING, 0, "模板测试");
+        menu.add(0, GLRender.WHAT_DRAW_BLENDING, 0, "混合");
+        menu.add(0, GLRender.WHAT_DRAW_INSTANCING, 0, "实例化");
+        menu.add(0, GLRender.WHAT_DRAW_INSTANCING3D, 0, "实例化3D");
+        menu.add(0, GLRender.WHAT_DRAW_PARTICLES, 0, "粒子效果");
         return true;
     }
 

@@ -48,7 +48,7 @@ extern "C" {
 
 typedef struct __ESContext {
     /// Put Image data here
-    void *imageData;
+    void *imageData[6];
 
     /// Put your user data here...
     void *userData;
@@ -87,6 +87,8 @@ typedef struct __ESContext {
     void (  *updateTouchLoc )(struct __ESContext *, GLfloat, GLfloat);
 
     void (  *updateTransformMatrix )(struct __ESContext *, GLfloat, GLfloat, GLfloat, GLfloat);
+
+    void ( *loadMultiImageWithIndex)(struct __ESContext *, int , int, int, int, uint8_t *);
 
 } ESContext;
 

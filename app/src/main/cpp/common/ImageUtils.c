@@ -93,3 +93,15 @@ void copyNativeImage(NativeImage *pSrcImg, NativeImage *pDstImg) {
             break;
     }
 }
+
+
+void allocNativeImage2(NativeImage **pImage, int format, int width, int height, uint8_t *pData){
+    NativeImage *image = malloc(sizeof(NativeImage));
+    memset(image, 0, sizeof(NativeImage));
+    *pImage = image;
+
+    NativeImage tmp;
+    genNativeImage(&tmp, format, width, height, pData);
+
+    copyNativeImage(&tmp, image);
+}

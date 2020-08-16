@@ -93,7 +93,7 @@ void YUVTextureMapDraw(ESContext* esContext){
         return;
     }
 
-    NativeImage *image = esContext->imageData;
+    NativeImage *image = esContext->imageData[0];
     if(image == NULL){
         return;
     }

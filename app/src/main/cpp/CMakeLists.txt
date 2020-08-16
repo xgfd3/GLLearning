@@ -18,8 +18,8 @@ include_directories(
 
 #源文件
 aux_source_directory(. src)
-aux_source_directory(./samples src)
 aux_source_directory(./common src)
+aux_source_directory(./samples src)
 
 #生成库
 set(lib-name native-lib)

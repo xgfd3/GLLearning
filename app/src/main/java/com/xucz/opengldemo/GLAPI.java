@@ -50,7 +50,11 @@ public class GLAPI {
     }
 
     public void setImageData(int format, int width, int height, byte[] byteArray) {
-        setImageData(mHandler, format, width, height, byteArray);
+        setImageData(mHandler, 0, format, width, height, byteArray);
+    }
+
+    public void setImageData(int index, int format, int width, int height, byte[] byteArray) {
+        setImageData(mHandler, index, format, width, height, byteArray);
     }
 
     public void changeTouchLoc(float x, float y) {
@@ -73,7 +77,7 @@ public class GLAPI {
 
     private native void drawNative(long handler, int what);
 
-    private native void setImageData(long handler, int format, int width, int height, byte[] byteArray);
+    private native void setImageData(long handler, int index, int format, int width, int height, byte[] byteArray);
 
     private native void changeTouchLocNative(long handler, float x, float y);
 

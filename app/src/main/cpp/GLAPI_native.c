@@ -49,10 +49,14 @@ static void uninitGLEnv(JNIEnv *env,jobject thiz, jlong esContext){
         _esContext->uninitFunc(_esContext);
     }
 
-    if( _esContext->imageData != NULL){
-        freeNativeImage((NativeImage* )_esContext->imageData);
-        free(_esContext->imageData);
-        _esContext->imageData = NULL;
+    size_t length = sizeof(_esContext->imageData) / sizeof(void *);
+    LOGCATE("uninitGLEnv imageData length : %d", length);
+    for(int i=0; i < length; i++){
+        if( _esContext->imageData[i] != NULL){
+            freeNativeImage((NativeImage* )_esContext->imageData[i]);
+            free(_esContext->imageData[i]);
+            _esContext->imageData[i] = NULL;
+        }
     }
 
     free(_esContext);
@@ -96,7 +100,7 @@ static void draw(JNIEnv *env,jobject thiz, jlong esContext, jint what){
     }
 }
 
-static void setImageData(JNIEnv *env,jobject thiz, jlong esContext, jint format, jint width, jint height, jbyteArray imageData){
+static void setImageData(JNIEnv *env,jobject thiz, jlong esContext, jint index, jint format, jint width, jint height, jbyteArray imageData){
     ESContext* _esContext = (ESContext*)esContext;
     if(_esContext == NULL){
         return;
@@ -105,19 +109,15 @@ static void setImageData(JNIEnv *env,jobject thiz, jlong esContext, jint format,
     uint8_t *buf = malloc(length);
     (*env)->GetByteArrayRegion(env, imageData, 0, length, buf);
 
-    NativeImage nativeImage;
-    genNativeImage(&nativeImage, format, width, height, buf);
-
-    NativeImage *sNImage = malloc(sizeof(NativeImage));
-    memset(sNImage, 0, sizeof(NativeImage));
-    copyNativeImage(&nativeImage, sNImage);
-
-    if( _esContext->imageData != NULL ){
-        freeNativeImage(_esContext->imageData);
-        free(_esContext->imageData);
+    if( _esContext->imageData[index] != NULL ){
+        freeNativeImage(_esContext->imageData[index]);
+        free(_esContext->imageData[index]);
     }
 
-    _esContext->imageData = sNImage;
+    NativeImage *image = NULL;
+    allocNativeImage2(&image, format, width, height, buf);
+
+    _esContext->imageData[index] = image;
 
     free(buf);
     (*env)->DeleteLocalRef(env, imageData);
@@ -152,7 +152,7 @@ static JNINativeMethod g_methods[] = {
         {"initPBufferGLEnvNative", "(II)J", (void *)(initPBufferGLEnv)},
         {"uninitGLEnvNative", "(J)V", (void *)(uninitGLEnv)},
         {"drawNative", "(JI)V", (void *)(draw)},
-        {"setImageData", "(JIII[B)V", (void *)(setImageData)},
+        {"setImageData", "(JIIII[B)V", (void *)(setImageData)},
         {"changeTouchLocNative", "(JFF)V", (void *)(changeTouchLoc)},
         {"updateTransformMatrixNative", "(JFFFF)V", (void *)(updateTransformMatrix)}
 };

@@ -428,7 +428,7 @@ void EGLDraw(ESContext *esContext, const char *fragShaderSrc){
     if(!userData){
         return;
     }
-    NativeImage *image = esContext->imageData;
+    NativeImage *image = esContext->imageData[0];
     if(!image){
         return;
     }

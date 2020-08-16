@@ -33,6 +33,10 @@ public class GLRender implements Handler.Callback{
     public static final int WHAT_DRAW_BASIC_LIGHTING    = WHAT_DRAW_BASE + 9;
     public static final int WHAT_DRAW_DEPTH_TESTING     = WHAT_DRAW_BASE + 10;
     public static final int WHAT_DRAW_STENCIL_TESTING   = WHAT_DRAW_BASE + 11;
+    public static final int WHAT_DRAW_BLENDING          = WHAT_DRAW_BASE + 12;
+    public static final int WHAT_DRAW_INSTANCING        = WHAT_DRAW_BASE + 13;
+    public static final int WHAT_DRAW_INSTANCING3D      = WHAT_DRAW_BASE + 14;
+    public static final int WHAT_DRAW_PARTICLES         = WHAT_DRAW_BASE + 15;
 
     // Handler消息
     private static final int WHAT_MSG_START_RENDER = 10;
@@ -143,7 +147,14 @@ public class GLRender implements Handler.Callback{
             case WHAT_DRAW_BASIC_LIGHTING:
             case WHAT_DRAW_DEPTH_TESTING:
             case WHAT_DRAW_STENCIL_TESTING:
+            case WHAT_DRAW_INSTANCING3D:
+            case WHAT_DRAW_PARTICLES:
                 loadRGBAImage(R.drawable.board_texture);
+                break;
+            case WHAT_DRAW_BLENDING:
+                loadRGBAImage(R.drawable.board_texture,0);
+                loadRGBAImage(R.drawable.floor, 1);
+                loadRGBAImage(R.drawable.window, 2);
                 break;
         }
     }
@@ -181,7 +192,11 @@ public class GLRender implements Handler.Callback{
 
     }
 
-    private void loadRGBAImage(int resId) {
+    private void loadRGBAImage(int resId){
+        this.loadRGBAImage(resId, 0);
+    }
+
+    private void loadRGBAImage(int resId, int index) {
         if (contextWeakReference == null || contextWeakReference.get() == null) {
             return;
         }
@@ -195,7 +210,7 @@ public class GLRender implements Handler.Callback{
                 ByteBuffer buf = ByteBuffer.allocate(bytes);
                 bitmap.copyPixelsToBuffer(buf);
                 byte[] byteArray = buf.array();
-                glapi.setImageData(IMAGE_FORMAT_RGBA, bitmap.getWidth(), bitmap.getHeight(), byteArray);
+                glapi.setImageData(index, IMAGE_FORMAT_RGBA, bitmap.getWidth(), bitmap.getHeight(), byteArray);
             }
         }
         finally

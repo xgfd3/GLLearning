@@ -45,7 +45,7 @@ void CoorderSystemInit(ESContext *context) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    auto *imageData = static_cast<NativeImage *>(context->imageData);
+    auto *imageData = static_cast<NativeImage *>(context->imageData[0]);
     if (imageData && imageData->format == IMAGE_FORMAT_RGBA) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageData->width, imageData->height, 0,
                      GL_RGBA, GL_UNSIGNED_BYTE, imageData->ppPlane[0]);

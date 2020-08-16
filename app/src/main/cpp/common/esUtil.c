@@ -177,6 +177,7 @@ esLoadProgram2(const char *vertShaderSrc, const char *fragShaderSrc, void (*befo
     }
 
     glLinkProgram(programObject);
+    GO_CHECK_GL_ERROR();
 
     glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
     if (!linked) {
