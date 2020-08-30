@@ -1,4 +1,4 @@
-package com.xucz.opengldemo;
+package com.xucz.opengldemo.utils;
 
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;

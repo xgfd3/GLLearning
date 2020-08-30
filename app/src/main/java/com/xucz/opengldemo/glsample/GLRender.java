@@ -1,4 +1,4 @@
-package com.xucz.opengldemo;
+package com.xucz.opengldemo.glsample;
 
 
 import android.content.Context;
@@ -9,34 +9,21 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.view.Surface;
 
+import com.xucz.opengldemo.R;
+import com.xucz.opengldemo.jni.GLSample;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
-import static com.xucz.opengldemo.GLAPI.IMAGE_FORMAT_NV21;
-import static com.xucz.opengldemo.GLAPI.IMAGE_FORMAT_RGBA;
+import static com.xucz.opengldemo.jni.GLSample.*;
+import static com.xucz.opengldemo.utils.ImageUtils.*;
 
 public class GLRender implements Handler.Callback{
     private static final int FPS = 30;
 
-    // 绘制类型，和GLAPI_native.h中的类型一一对应
-    public static final int WHAT_DRAW_BASE              = 0x00000010;
-    public static final int WHAT_DRAW_TRIANGLE          = WHAT_DRAW_BASE + 1;
-    public static final int WHAT_DRAW_TEXTUREMAP        = WHAT_DRAW_BASE + 2;
-    public static final int WHAT_DRAW_YUVTEXTUREMAP     = WHAT_DRAW_BASE + 3;
-    public static final int WHAT_DRAW_VBO               = WHAT_DRAW_BASE + 4;
-    public static final int WHAT_DRAW_VAO               = WHAT_DRAW_BASE + 5;
-    public static final int WHAT_DRAW_FBO               = WHAT_DRAW_BASE + 6;
-    public static final int WHAT_DRAW_TRANSFORM_FEEDBACK= WHAT_DRAW_BASE + 7;
-    public static final int WHAT_DRAW_COORDINATE_SYSTEM = WHAT_DRAW_BASE + 8;
-    public static final int WHAT_DRAW_BASIC_LIGHTING    = WHAT_DRAW_BASE + 9;
-    public static final int WHAT_DRAW_DEPTH_TESTING     = WHAT_DRAW_BASE + 10;
-    public static final int WHAT_DRAW_STENCIL_TESTING   = WHAT_DRAW_BASE + 11;
-    public static final int WHAT_DRAW_BLENDING          = WHAT_DRAW_BASE + 12;
-    public static final int WHAT_DRAW_INSTANCING        = WHAT_DRAW_BASE + 13;
-    public static final int WHAT_DRAW_INSTANCING3D      = WHAT_DRAW_BASE + 14;
-    public static final int WHAT_DRAW_PARTICLES         = WHAT_DRAW_BASE + 15;
+
 
     // Handler消息
     private static final int WHAT_MSG_START_RENDER = 10;
@@ -48,7 +35,7 @@ public class GLRender implements Handler.Callback{
 
 
 
-    private final GLAPI glapi;
+    private final GLSample glapi;
     private final HandlerThread mGlRenderThread;
     private final Handler mHandler;
     private volatile int mDrawWhat = 0;
@@ -57,7 +44,7 @@ public class GLRender implements Handler.Callback{
 
     public GLRender(Context context){
         contextWeakReference = new WeakReference<>(context);
-        glapi = new GLAPI();
+        glapi = new GLSample();
         mGlRenderThread = new HandlerThread("GLRender");
         mGlRenderThread.start();
         mHandler = new Handler(mGlRenderThread.getLooper(), this);
@@ -155,6 +142,14 @@ public class GLRender implements Handler.Callback{
                 loadRGBAImage(R.drawable.board_texture,0);
                 loadRGBAImage(R.drawable.floor, 1);
                 loadRGBAImage(R.drawable.window, 2);
+                break;
+            case WHAT_DRAW_SKYBOX:
+                loadRGBAImage(R.drawable.right,0);
+                loadRGBAImage(R.drawable.left, 1);
+                loadRGBAImage(R.drawable.top, 2);
+                loadRGBAImage(R.drawable.bottom, 3);
+                loadRGBAImage(R.drawable.back, 4);
+                loadRGBAImage(R.drawable.front, 5);
                 break;
         }
     }

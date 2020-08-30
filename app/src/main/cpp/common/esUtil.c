@@ -13,7 +13,7 @@ void esLogMessage(const char *formatStr, ...) {
     __android_log_print(ANDROID_LOG_INFO, "esUtil", "%s", buf);
 }
 
-GLboolean esCreateWindow(ESContext *esContext, GLuint flags, GLint width, GLint height) {
+GLboolean esCreateWindow(ESContext *esContext, ESContext  *shareContext, GLuint flags, GLint width, GLint height) {
     EGLConfig config;
     EGLint majorVersion;
     EGLint minorVersion;
@@ -102,10 +102,18 @@ GLboolean esCreateWindow(ESContext *esContext, GLuint flags, GLint width, GLint 
         esContext->height = height;
     }
 
+    EGLContext eglShareContext = EGL_NO_CONTEXT;
+    if(shareContext){
+        EGLContext _eglShareContext = shareContext->eglContext;
+        if(_eglShareContext){
+            eglShareContext  = _eglShareContext;
+        }
+    }
+    
 
     // 5. 创建渲染上下文 EGLContext
     esContext->eglContext = eglCreateContext(esContext->eglDisplay, config,
-                                             EGL_NO_CONTEXT, contextAttribs);
+                                             eglShareContext, contextAttribs);
 
     if (esContext->eglContext == EGL_NO_CONTEXT) {
         return GL_FALSE;

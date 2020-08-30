@@ -1,8 +1,8 @@
 #include <jni.h>
 #include <android/native_window_jni.h>
-#include "GLAPI_native.h"
+#include "gl_sample_jni.h"
 
-static jlong initGLEnv(JNIEnv *env,jobject thiz, jobject android_surface) {
+static jlong initGLEnv(JNIEnv *env,jobject thiz, jlong shareContext, jobject android_surface) {
 
     ANativeWindow *native_window = NULL;
     if (android_surface) {
@@ -13,30 +13,37 @@ static jlong initGLEnv(JNIEnv *env,jobject thiz, jobject android_surface) {
         }
     }
 
-    ESContext *esContext;
-    esContext = malloc(sizeof(ESContext));
-    memset(esContext, 0, sizeof(ESContext));
+    GLSampleContext *glApiContext;
+    glApiContext = malloc(sizeof(GLSampleContext));
+    memset(glApiContext, 0, sizeof(GLSampleContext));
+
+    ESContext *esContext = (ESContext *) glApiContext;
 
     esContext->eglNativeDisplay = EGL_DEFAULT_DISPLAY;
     esContext->eglNativeWindow = native_window;
 
-    // 使用深度测试时记得要先开启
-    esCreateWindow(esContext, ES_WINDOW_RGB | ES_WINDOW_DEPTH | ES_WINDOW_STENCIL | ES_WINDOW_MULTISAMPLE, 0, 0);
+    ESContext* _shareContext = (ESContext*)shareContext;
 
-    return (jlong)esContext;
+    // 使用深度测试时记得要先开启
+    esCreateWindow(esContext, _shareContext, ES_WINDOW_RGB | ES_WINDOW_DEPTH | ES_WINDOW_STENCIL | ES_WINDOW_MULTISAMPLE, 0, 0);
+
+    return (jlong)glApiContext;
 }
 
-static jlong initPBufferGLEnv(JNIEnv *env,jobject thiz, jint width, jint height) {
+static jlong initPBufferGLEnv(JNIEnv *env,jobject thiz, jlong shareContext, jint width, jint height) {
 
-    ESContext *esContext;
-    esContext = malloc(sizeof(ESContext));
-    memset(esContext, 0, sizeof(ESContext));
+    GLSampleContext *glApiContext;
+    glApiContext = malloc(sizeof(GLSampleContext));
+    memset(glApiContext, 0, sizeof(GLSampleContext));
 
+    ESContext *esContext = (ESContext *) glApiContext;
     esContext->eglNativeDisplay = EGL_DEFAULT_DISPLAY;
 
-    esCreateWindow(esContext, ES_WINDOW_RGB | ES_WINDOW_PBUFFER, width, height);
+    ESContext* _shareContext = (ESContext*)shareContext;
 
-    return (jlong)esContext;
+    esCreateWindow(esContext, _shareContext, ES_WINDOW_RGB | ES_WINDOW_PBUFFER, width, height);
+
+    return (jlong)glApiContext;
 }
 
 static void uninitGLEnv(JNIEnv *env,jobject thiz, jlong esContext){
@@ -45,8 +52,10 @@ static void uninitGLEnv(JNIEnv *env,jobject thiz, jlong esContext){
         return;
     }
 
-    if (_esContext->uninitFunc != NULL) {
-        _esContext->uninitFunc(_esContext);
+    GLSampleContext *glApiContext = (GLSampleContext *) _esContext;
+
+    if (glApiContext->uninitFunc != NULL) {
+        glApiContext->uninitFunc(_esContext);
     }
 
     size_t length = sizeof(_esContext->imageData) / sizeof(void *);
@@ -68,19 +77,21 @@ static void draw(JNIEnv *env,jobject thiz, jlong esContext, jint what){
         return;
     }
 
-    if(_esContext->cb_what <= 0){
-        _esContext->cb_what = what;
+    GLSampleContext *glApiContext = (GLSampleContext *) _esContext;
+
+    if(glApiContext->cb_what <= 0){
+        glApiContext->cb_what = what;
         findAndFillDrawMethods(_esContext, what);
-        if( _esContext->initFunc != NULL ){
-            _esContext->initFunc(_esContext);
+        if( glApiContext->initFunc != NULL ){
+            glApiContext->initFunc(_esContext);
         }
     }
 
-    if( _esContext->cb_what != what ){
-        if( _esContext->uninitFunc != NULL ){
-            _esContext->uninitFunc(_esContext);
+    if( glApiContext->cb_what != what ){
+        if( glApiContext->uninitFunc != NULL ){
+            glApiContext->uninitFunc(_esContext);
         }
-        _esContext->cb_what = what;
+        glApiContext->cb_what = what;
         findAndFillDrawMethods(_esContext, what);
 
         if(_esContext->userData != NULL){
@@ -88,13 +99,13 @@ static void draw(JNIEnv *env,jobject thiz, jlong esContext, jint what){
             _esContext->userData = NULL;
         }
 
-        if( _esContext->initFunc != NULL ){
-            _esContext->initFunc(_esContext);
+        if( glApiContext->initFunc != NULL ){
+            glApiContext->initFunc(_esContext);
         }
     }
 
-    if (_esContext->drawFunc != NULL) {
-        _esContext->drawFunc(_esContext);
+    if (glApiContext->drawFunc != NULL) {
+        glApiContext->drawFunc(_esContext);
 
         eglSwapBuffers(_esContext->eglDisplay, _esContext->eglSurface);
     }
@@ -128,8 +139,10 @@ static void changeTouchLoc(JNIEnv *env,jobject thiz, jlong esContext, jfloat x, 
     if(_esContext == NULL){
         return;
     }
-    if(_esContext->updateTouchLoc){
-        _esContext->updateTouchLoc(_esContext, x, y);
+
+    GLSampleContext *glApiContext = (GLSampleContext *) _esContext;
+    if(glApiContext->updateTouchLoc){
+        glApiContext->updateTouchLoc(_esContext, x, y);
     }
 }
 
@@ -139,17 +152,19 @@ static void updateTransformMatrix(JNIEnv *env,jobject thiz, jlong esContext,
     if(_esContext == NULL){
         return;
     }
-    if(_esContext->updateTransformMatrix){
-        _esContext->updateTransformMatrix(_esContext, rotateX, rotateY, scaleX, scaleY);
+    GLSampleContext *glApiContext = (GLSampleContext *) _esContext;
+    if(glApiContext->updateTransformMatrix){
+        glApiContext->updateTransformMatrix(_esContext, rotateX, rotateY, scaleX, scaleY);
     }
 }
 
 
-#define GLAPI_CLASS_NAME "com/xucz/opengldemo/GLAPI"
+
+#define GLAPI_CLASS_NAME "com/xucz/opengldemo/jni/GLSample"
 
 static JNINativeMethod g_methods[] = {
-        {"initGLEnvNative", "(Landroid/view/Surface;)J", (void *)(initGLEnv)},
-        {"initPBufferGLEnvNative", "(II)J", (void *)(initPBufferGLEnv)},
+        {"initGLEnvNative", "(JLandroid/view/Surface;)J", (void *)(initGLEnv)},
+        {"initPBufferGLEnvNative", "(JII)J", (void *)(initPBufferGLEnv)},
         {"uninitGLEnvNative", "(J)V", (void *)(uninitGLEnv)},
         {"drawNative", "(JI)V", (void *)(draw)},
         {"setImageData", "(JIIII[B)V", (void *)(setImageData)},

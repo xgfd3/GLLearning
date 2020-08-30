@@ -1,4 +1,4 @@
-package com.xucz.opengldemo;
+package com.xucz.opengldemo.glsample;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,31 +11,27 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
+import com.xucz.opengldemo.R;
+import com.xucz.opengldemo.jni.GLSample;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import static com.xucz.opengldemo.GLAPI.IMAGE_FORMAT_RGBA;
+import static com.xucz.opengldemo.jni.GLSample.*;
+import static com.xucz.opengldemo.utils.ImageUtils.*;
+
 
 public class EGLActivity extends AppCompatActivity {
 
     private static final int SHOW_WIDTH = 933;
     private static final int SHOW_HEIGHT = 1400;
 
-    // EGL后台绘制类型，对应GLAPI_native.h中的类型
-    public static final int WHAT_DRAW_EGL = 0x00001000;
-    public static final int WHAT_DRAW_EGL_NORMAL      = WHAT_DRAW_EGL + 1;
-    public static final int WHAT_DRAW_EGL_MOSAIC      = WHAT_DRAW_EGL + 2;
-    public static final int WHAT_DRAW_EGL_GRID        = WHAT_DRAW_EGL + 3;
-    public static final int WHAT_DRAW_EGL_ROTATE      = WHAT_DRAW_EGL + 4;
-    public static final int WHAT_DRAW_EGL_EDGE        = WHAT_DRAW_EGL + 5;
-    public static final int WHAT_DRAW_EGL_ENLARGE     = WHAT_DRAW_EGL + 6;
-    public static final int WHAT_DRAW_EGL_UNKNOW      = WHAT_DRAW_EGL + 7;
-    public static final int WHAT_DRAW_EGL_DEFORMATION = WHAT_DRAW_EGL + 8;
+
 
     private ImageView imageView;
-    private GLAPI glapi;
+    private GLSample glapi;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +40,7 @@ public class EGLActivity extends AppCompatActivity {
         setTitle("EGL绘制");
 
         imageView = findViewById(R.id.imageview);
-        glapi = new GLAPI();
+        glapi = new GLSample();
 
         // 初始化GL离屏环境
         glapi.initPBufferGLEnv(SHOW_WIDTH, SHOW_HEIGHT);

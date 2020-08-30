@@ -3,15 +3,14 @@
 #ifndef GLAPI_NATIVE_H
 #define GLAPI_NATIVE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "common/esUtil.h"
 #include "common/ImageUtils.h"
 
 
 #include "samples/CoordSystem.h"
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "samples/Triangle.h"
 #include "samples/VAO.h"
 #include "samples/VBO.h"
@@ -27,6 +26,7 @@ extern "C" {
 #include "samples/Instancing.h"
 #include "samples/Instancing3D.h"
 #include "samples/Particles.h"
+#include "samples/SkyBox.h"
 
 #define WHAT_DRAW_BASE 0x00000010
 #define WHAT_DRAW_TRIANGLE              WHAT_DRAW_BASE + 1
@@ -44,6 +44,7 @@ extern "C" {
 #define WHAT_DRAW_INSTANCING            WHAT_DRAW_BASE + 13
 #define WHAT_DRAW_INSTANCING3D          WHAT_DRAW_BASE + 14
 #define WHAT_DRAW_PARTICLES             WHAT_DRAW_BASE + 15
+#define WHAT_DRAW_SKYBOX                WHAT_DRAW_BASE + 16
 
 
 #define WHAT_DRAW_EGL 0x00001000
@@ -57,7 +58,30 @@ extern "C" {
 #define WHAT_DRAW_EGL_DEFORMATION       WHAT_DRAW_EGL + 8
 
 
-void findAndFillDrawMethods(ESContext *esContext, int what) {
+typedef struct __GLSampleContext {
+    // 子结构体里定义一个父结构体变量，必须放在子结构体里的第一位
+    ESContext esContext;
+
+    // Callbacks what
+    int cb_what;
+
+    /// Callbacks
+    void (  *initFunc )(struct __ESContext *);
+
+    void (  *drawFunc )(struct __ESContext *);
+
+    void (  *uninitFunc )(struct __ESContext *);
+
+    void (  *updateTouchLoc )(struct __ESContext *, GLfloat, GLfloat);
+
+    void (  *updateTransformMatrix )(struct __ESContext *, GLfloat, GLfloat, GLfloat, GLfloat);
+
+    void ( *loadMultiImageWithIndex)(struct __ESContext *, int , int, int, int, uint8_t *);
+
+} GLSampleContext;
+
+
+void findAndFillDrawMethods(GLSampleContext *esContext, int what) {
     esContext->updateTouchLoc = 0;
     esContext->updateTransformMatrix = 0;
 
@@ -189,6 +213,13 @@ void findAndFillDrawMethods(ESContext *esContext, int what) {
             esContext->uninitFunc = (void (*)(ESContext *)) ParticlesUnInit;
             esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
                                                          GLfloat)) ParticlesUpdateTransformMatrix;
+            break;
+        case WHAT_DRAW_SKYBOX:
+            esContext->initFunc = (void (*)(ESContext *)) SkyBoxInit;
+            esContext->drawFunc = (void (*)(ESContext *)) SkyBoxDraw;
+            esContext->uninitFunc = (void (*)(ESContext *)) SkyBoxUnInit;
+            esContext->updateTransformMatrix = (void (*)(ESContext *, GLfloat, GLfloat, GLfloat,
+                                                         GLfloat)) SkyBoxUpdateTransformMatrix;
             break;
     }
 }

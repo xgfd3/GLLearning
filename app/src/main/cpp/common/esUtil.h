@@ -10,6 +10,7 @@ extern "C" {
 #endif
 
 #include <GLES3/gl3.h>
+#include <GLES2/gl2ext.h>
 #include <EGL/egl.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -20,6 +21,14 @@ extern "C" {
 
 
 #define MATH_PI 3.1415926535897932384626433832802
+
+
+#define TEX_TYPE_OES 1
+#define TEX_TYPE_2D  2
+
+#define CAMERA_FACING_BACK  1
+#define CAMERA_FACING_FRONT 2
+
 
 /// esCreateWindow flag - RGB color buffer
 #define ES_WINDOW_RGB           0
@@ -74,28 +83,12 @@ typedef struct __ESContext {
     /// EGL surface
     EGLSurface eglSurface;
 
-    // Callbacks what
-    int cb_what;
-
-    /// Callbacks
-    void (  *initFunc )(struct __ESContext *);
-
-    void (  *drawFunc )(struct __ESContext *);
-
-    void (  *uninitFunc )(struct __ESContext *);
-
-    void (  *updateTouchLoc )(struct __ESContext *, GLfloat, GLfloat);
-
-    void (  *updateTransformMatrix )(struct __ESContext *, GLfloat, GLfloat, GLfloat, GLfloat);
-
-    void ( *loadMultiImageWithIndex)(struct __ESContext *, int , int, int, int, uint8_t *);
-
 } ESContext;
 
 
 void esLogMessage(const char *formatStr, ...);
 
-GLboolean esCreateWindow(ESContext *esContext, GLuint flags, GLint width, GLint height);
+GLboolean esCreateWindow(ESContext *esContext, ESContext *shareContext, GLuint flags, GLint width, GLint height);
 
 GLuint
 esLoadProgram2(const char *vertShaderSrc, const char *fragShaderSrc, void (*beforeLink)(GLuint));
