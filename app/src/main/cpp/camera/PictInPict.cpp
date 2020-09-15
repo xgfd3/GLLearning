@@ -1,61 +1,78 @@
 //
-// Created by xucz on 2020/8/29.
+// Created by xucz on 2020/9/15.
 //
 
-#include "ScaleCircle.h"
+#include "PictInPict.h"
 
 extern "C" {
-
 typedef struct __UserData {
     UserDataBase parent;
 
     GLuint s_TexSamplerLoc;
-    GLuint u_offsetLoc;
-    GLuint texSizeLoc;
-
-    glm::vec2 texSize;
-
 } UserData;
 
-const char f2DShaderStr1[] =
+const char f2DShaderStr[] =
         "#version 300 es\n"
         "precision highp float;\n"
         "in vec2 v_texCoord;\n"
         "layout(location = 0) out vec4 outColor;\n"
         "uniform sampler2D s_TexSampler;\n"
-        "uniform vec2 texSize;\n"
-        "uniform float u_offset;\n"
+        "\n"
+        "vec2 scale(vec2 uv, float level){\n"
+        "    vec2 center = vec2(0.5, 0.5);\n"
+        "    vec2 newTexCoord = uv.xy;\n"
+        "    newTexCoord -= center;\n"
+        "    newTexCoord = newTexCoord / level;\n"
+        "    newTexCoord += center;\n"
+        "    return newTexCoord;\n"
+        "}\n"
+        "\n"
+        "const float OFFSET_LEVEL = 0.15;\n"
+        "const float SCALE_LEVEL = 4.0;\n"
         "void main(){ \n"
-        "    vec2 imgTexCoord = v_texCoord * texSize;\n"
-        "    float r = (u_offset + 0.208) * texSize.x / 2.0;\n"
-        "    if(distance(imgTexCoord, vec2(texSize.x / 2.0, texSize.y / 2.0)) < r){\n"
-        "        outColor = texture(s_TexSampler, v_texCoord);\n"
+        "    if(OFFSET_LEVEL < v_texCoord.x && v_texCoord.x < (1.0 - OFFSET_LEVEL) \n"
+        "         && OFFSET_LEVEL < v_texCoord.y && v_texCoord.y < (1.0 - OFFSET_LEVEL)){\n"
+        "         vec2 newTexCoord = v_texCoord;\n"
+        "         newTexCoord -= OFFSET_LEVEL;\n"
+        "         newTexCoord = newTexCoord / (1.0 - 2.0*OFFSET_LEVEL);\n"
+        "         outColor = texture(s_TexSampler, newTexCoord);\n"
         "    } else {\n"
-        "        outColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "         outColor = texture(s_TexSampler, scale(v_texCoord, SCALE_LEVEL));\n"
         "    }\n"
         "}\n";
 
-const char fOESShaderStr1[] =
+const char fOESShaderStr[] =
         "#version 300 es\n"
         "#extension GL_OES_EGL_image_external_essl3 : require\n"
-        "precision highp float;\n" // !! 注意精度，如果精度不能满足计算需要，会出现计算错误，使用distance时要使用到highp精度
+        "precision highp float;\n"
         "in vec2 v_texCoord;\n"
         "layout(location = 0) out vec4 outColor;\n"
         "uniform samplerExternalOES s_TexSampler;\n"
-        "uniform vec2 texSize;\n"
-        "uniform float u_offset;\n"
+        "\n"
+        "vec2 scale(vec2 uv, float level){\n"
+        "    vec2 center = vec2(0.5, 0.5);\n"
+        "    vec2 newTexCoord = uv.xy;\n"
+        "    newTexCoord -= center;\n"
+        "    newTexCoord = newTexCoord / level;\n"
+        "    newTexCoord += center;\n"
+        "    return newTexCoord;\n"
+        "}\n"
+        "\n"
+        "const float OFFSET_LEVEL = 0.15;\n"
+        "const float SCALE_LEVEL = 4.0;\n"
         "void main(){ \n"
-        "    vec2 imgTex = v_texCoord * texSize;\n"
-        "    float r = (u_offset + 0.208) * texSize.x / 2.0;\n"
-        "    if(distance(imgTex, vec2(texSize.x / 2.0, texSize.y / 2.0)) < r){\n"
-        "        outColor = texture(s_TexSampler, v_texCoord);\n"
+        "    if(OFFSET_LEVEL < v_texCoord.x && v_texCoord.x < (1.0 - OFFSET_LEVEL) \n"
+        "         && OFFSET_LEVEL < v_texCoord.y && v_texCoord.y < (1.0 - OFFSET_LEVEL)){\n"
+        "         vec2 newTexCoord = v_texCoord;\n"
+        "         newTexCoord -= OFFSET_LEVEL;\n"
+        "         newTexCoord = newTexCoord / (1.0 - 2.0*OFFSET_LEVEL);\n"
+        "         outColor = texture(s_TexSampler, newTexCoord);\n"
         "    } else {\n"
-        "        outColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+        "         outColor = texture(s_TexSampler, scale(v_texCoord, SCALE_LEVEL));\n"
         "    }\n"
         "}\n";
 
-
-void ScaleCircleInit(ESContext *esContext) {
+void PictInPictInit(ESContext *esContext) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if(!userData){
         userData = new UserData();
@@ -66,21 +83,19 @@ void ScaleCircleInit(ESContext *esContext) {
     UserDataBase *pUserDataBase = (UserDataBase *) userData;
     char *fShaderStr;
     if(pUserDataBase->cameraTexType == TEX_TYPE_OES){
-        fShaderStr = (char *)fOESShaderStr1;
+        fShaderStr = (char *)fOESShaderStr;
     }else{
-        fShaderStr = (char *)f2DShaderStr1;
+        fShaderStr = (char *)f2DShaderStr;
     }
-    
+
     GLuint program = CameraBaseLoadProgram(pUserDataBase, fShaderStr);
     if(!program){
         return;
     }
     userData->s_TexSamplerLoc = glGetUniformLocation(program, "s_TexSampler");
-    userData->u_offsetLoc = glGetUniformLocation(program, "u_offset");
-    userData->texSizeLoc = glGetUniformLocation(program, "texSize");
 }
 
-void ScaleCircleUnInit(ESContext *esContext) {
+void PictInPictUnInit(ESContext *esContext) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if(!userData){
         return;
@@ -91,23 +106,22 @@ void ScaleCircleUnInit(ESContext *esContext) {
     esContext->userData = nullptr;
 }
 
-void ScaleCircleSetCameraTexId(ESContext *esContext,
-                          GLuint texId, int texType, int width, int height,
-                          int facing) {
+void PictInPictSetCameraTexId(ESContext *esContext,
+                              GLuint texId, int texType,
+                              int width, int height, int facing) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if(!userData){
         return;
     }
     int shouldUpdate = CameraBaseUpdateParam((UserDataBase *) userData, texId, texType, width,
-                                              height, facing);
+                                             height, facing);
     if(shouldUpdate){
         CameraBaseUpdateMatrix((UserDataBase *)userData, esContext->width, esContext->height);
-        userData->texSize = glm::vec2(1.0f * width, 1.0f * height);
-        ScaleCircleInit(esContext);
+        PictInPictInit(esContext);
     }
 }
 
-void ScaleCircleDraw(ESContext *esContext) {
+void PictInPictDraw(ESContext *esContext) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if(!userData){
         return;
@@ -130,21 +144,10 @@ void ScaleCircleDraw(ESContext *esContext) {
         glUniform1i(userData->s_TexSamplerLoc, 0);
     }
 
-    // 图片坐标
-    glUniform2fv(userData->texSizeLoc, 1, &userData->texSize[0]);
-
-    // 偏移
-    float offset = CameraBaseGetProgress(pUserDataBase, 20, 1, 0, 1);
-    if(offset < 0.02f){
-        offset = 0.02f;
-    }
-    glUniform1f(userData->u_offsetLoc, offset);
-
     CameraBaseAfterDraw(pUserDataBase);
 
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, GL_NONE);
 }
-
 
 }

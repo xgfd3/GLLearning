@@ -184,5 +184,41 @@ int CameraBaseUpdateParam(UserDataBase *userData, int texId, int texType, int wi
     return shouldUpdate;
 }
 
+float CameraBaseGetProgress(UserDataBase *userData, int speed, int revert, float min, float max){
+    if(!userData){
+        return 0;
+    }
+    
+    // 计算从0开始的时长ms
+    long currTimeMs = esGetCurrClockTimeNs() / 1000000;
+    if(userData->startTime == 0 ){
+        userData->startTime = currTimeMs;
+    }
+    long diffTimeMs = currTimeMs - userData->startTime;
 
+    long diffDs = diffTimeMs * speed;
+
+    float progress = 1.0f * diffDs / PROGRESS_DISTANCE;
+    if(userData->decrease){
+        progress = max - progress;
+    }
+
+    if(progress > max){
+        userData->startTime = currTimeMs;
+        progress = max;
+        if(revert){
+            userData->decrease = 1;
+        }
+    }
+    if(progress < min){
+        userData->startTime = currTimeMs;
+        progress = min;
+        if(revert){
+            userData->decrease = 0;
+        }
+    }
+
+    //LOGCATE("CameraBaseGetProgress diffTimeMs:%ld, diffDs:%ld, progress:%.2f", diffTimeMs, diffDs, progress);
+    return progress;
+}
 }

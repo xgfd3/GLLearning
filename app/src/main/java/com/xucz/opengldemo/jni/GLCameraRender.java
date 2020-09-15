@@ -16,17 +16,21 @@ import java.lang.annotation.Native;
 public class GLCameraRender {
 
 
-    public static final int WHAT_DRAW_CAMERA                = 0x00000100;
-    public static final int WHAT_DRAW_CAMERA_NORMAL         = WHAT_DRAW_CAMERA + 1;
-    public static final int WHAT_DRAW_CAMERA_GRID           = WHAT_DRAW_CAMERA + 2;
-    public static final int WHAT_DRAW_CAMERA_SPLIT_SCREEN   = WHAT_DRAW_CAMERA + 3;
-    public static final int WHAT_DRAW_CAMERA_SCALE_CIRCLE   = WHAT_DRAW_CAMERA + 4;
-    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_1   = WHAT_DRAW_CAMERA + 5;
-    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_2   = WHAT_DRAW_CAMERA + 6;
-    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_3   = WHAT_DRAW_CAMERA + 7;
-    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_4   = WHAT_DRAW_CAMERA + 8;
-    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_5   = WHAT_DRAW_CAMERA + 9;
-    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_6   = WHAT_DRAW_CAMERA + 10;
+    public static final int WHAT_DRAW_CAMERA                    = 0x00000100;
+    public static final int WHAT_DRAW_CAMERA_NORMAL             = WHAT_DRAW_CAMERA + 1;
+    public static final int WHAT_DRAW_CAMERA_GRID               = WHAT_DRAW_CAMERA + 2;
+    public static final int WHAT_DRAW_CAMERA_SPLIT_SCREEN       = WHAT_DRAW_CAMERA + 3;
+    public static final int WHAT_DRAW_CAMERA_SCALE_CIRCLE       = WHAT_DRAW_CAMERA + 4;
+    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_1       = WHAT_DRAW_CAMERA + 5;
+    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_2       = WHAT_DRAW_CAMERA + 6;
+    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_3       = WHAT_DRAW_CAMERA + 7;
+    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_4       = WHAT_DRAW_CAMERA + 8;
+    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_5       = WHAT_DRAW_CAMERA + 9;
+    public static final int WHAT_DRAW_CAMERA_LUT_FILTER_6       = WHAT_DRAW_CAMERA + 10;
+    public static final int WHAT_DRAW_CAMERA_SEPARATION_SHIFT   = WHAT_DRAW_CAMERA + 11;
+    public static final int WHAT_DRAW_CAMERA_SOUL_OUT           = WHAT_DRAW_CAMERA + 12;
+    public static final int WHAT_DRAW_CAMERA_ROTATE_CIRCLE      = WHAT_DRAW_CAMERA + 13;
+    public static final int WHAT_DRAW_CAMERA_PICT_IN_PICT       = WHAT_DRAW_CAMERA + 14;
 
     static {
         try {

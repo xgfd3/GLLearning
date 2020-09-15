@@ -145,6 +145,10 @@ public class CameraActivity extends AppCompatActivity {
         renderOpt.add(WHAT_DRAW_CAMERA, WHAT_DRAW_CAMERA_LUT_FILTER_4, 0, "LUT滤镜4");
         renderOpt.add(WHAT_DRAW_CAMERA, WHAT_DRAW_CAMERA_LUT_FILTER_5, 0, "LUT滤镜5");
         renderOpt.add(WHAT_DRAW_CAMERA, WHAT_DRAW_CAMERA_LUT_FILTER_6, 0, "LUT滤镜6");
+        renderOpt.add(WHAT_DRAW_CAMERA, WHAT_DRAW_CAMERA_SEPARATION_SHIFT, 0, "分色偏移");
+        renderOpt.add(WHAT_DRAW_CAMERA, WHAT_DRAW_CAMERA_SOUL_OUT, 0, "灵魂出窍 ");
+        renderOpt.add(WHAT_DRAW_CAMERA, WHAT_DRAW_CAMERA_ROTATE_CIRCLE, 0, "旋转的圆 ");
+        renderOpt.add(WHAT_DRAW_CAMERA, WHAT_DRAW_CAMERA_PICT_IN_PICT, 0, "画中画 ");
         return super.onCreateOptionsMenu(menu);
     }
 

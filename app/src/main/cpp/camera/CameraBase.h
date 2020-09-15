@@ -18,6 +18,8 @@ extern "C" {
 #include "../common/ImageUtils.h"
 #include "../common/esUtil.h"
 
+#define PROGRESS_DISTANCE 30000
+
 typedef struct __UserDataBase{
     // 程序
     GLuint program;
@@ -38,7 +40,11 @@ typedef struct __UserDataBase{
     glm::mat4 m_MVPMatrix;
 #endif
 
+    int decrease; // 0:非递减，1: 递减
+    long startTime; // progress开始时间 ms
 } UserDataBase;
+
+float CameraBaseGetProgress(UserDataBase *userData, int speed, int revert, float min, float max);
 
 GLuint CameraBaseLoadProgram(UserDataBase *userData, char *fShaderStr);
 

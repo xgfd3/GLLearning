@@ -1,8 +1,8 @@
 //
-// Created by xucz on 2020/8/30.
+// Created by xucz on 2020/9/15.
 //
 
-#include "Grid.h"
+#include "SoulOut.h"
 
 extern "C" {
 
@@ -11,60 +11,60 @@ typedef struct __UserData {
 
     GLuint s_TexSamplerLoc;
     GLuint u_offsetLoc;
-    GLuint texSizeLoc;
 
-    glm::vec2 texSize;
 } UserData;
 
 const char f2DShaderStr[] =
         "#version 300 es\n"
-        "precision mediump float;\n"
+        "precision highp float;\n"
         "in vec2 v_texCoord;\n"
         "layout(location = 0) out vec4 outColor;\n"
         "uniform sampler2D s_TexSampler;\n"
         "uniform float u_offset;\n"
-        "uniform vec2 texSize;\n"
+        "const float MAX_ALPHA = 0.5;\n"
+        "const float MAX_SCALE = 0.8;\n"
         "void main(){ \n"
-        "    vec2 imgTexCoord = v_texCoord * texSize;\n" // 将纹理坐标转成图片坐标
-        //"    vec2 imgTexCoord = v_texCoord;\n"
-        "    float sideLength = texSize.y / 6.0;\n"// 风格边长
-        "    float maxOffset = 0.15 * sideLength;\n"
-        "    float x = mod(imgTexCoord.x, floor(sideLength));\n"
-        "    float y = mod(imgTexCoord.y, floor(sideLength));\n"
-        "    float offset = u_offset * maxOffset;\n"
-        "    if(offset<=x && x<=sideLength-offset && offset <=y && y <= sideLength - offset){\n"
-        "        outColor = texture(s_TexSampler, v_texCoord);\n"
-        "    } else {\n"
-        "        outColor = vec4(1.0, 1.0, 1.0, 0.0);\n"
-        "    }\n"
+        //根据偏移量计算混合系数 alpha
+        "    float alpha = MAX_ALPHA * (1.0 - u_offset);\n"
+        // 根据偏移量计算混合系数 scale
+        "    float scale = 1.0 + u_offset * MAX_SCALE;\n"
+        // 缩放操作
+        "    float scale_x = 0.5 + (v_texCoord.x - 0.5) / scale;\n"
+        "    float scale_y = 0.5 + (v_texCoord.y - 0.5) / scale;\n"
+        "    vec2 scaleCoord = vec2(scale_x, scale_y);\n"
+        "    vec4 maskColor = texture(s_TexSampler, scaleCoord);\n"
+        "    vec4 originColor = texture(s_TexSampler, v_texCoord);\n"
+        // 加权混合
+        "    outColor = originColor * (1.0 - alpha) + maskColor * alpha;\n"
         "}\n";
 
 const char fOESShaderStr[] =
         "#version 300 es\n"
         "#extension GL_OES_EGL_image_external_essl3 : require\n"
-        "precision mediump float;\n"
+        "precision highp float;\n"
         "in vec2 v_texCoord;\n"
         "layout(location = 0) out vec4 outColor;\n"
         "uniform samplerExternalOES s_TexSampler;\n"
         "uniform float u_offset;\n"
-        "uniform vec2 texSize;\n"
+        "const float MAX_ALPHA = 0.5;\n"
+        "const float MAX_SCALE = 0.8;\n"
         "void main(){ \n"
-        "    vec2 imgTexCoord = v_texCoord * texSize;\n" // 将纹理坐标转成图片坐标
-        //"    vec2 imgTexCoord = v_texCoord;\n"
-        "    float sideLength = texSize.y / 6.0;\n"// 风格边长
-        "    float maxOffset = 0.15 * sideLength;\n"
-        "    float x = mod(imgTexCoord.x, floor(sideLength));\n"
-        "    float y = mod(imgTexCoord.y, floor(sideLength));\n"
-        "    float offset = u_offset * maxOffset;\n"
-        "    if(offset<=x && x<=sideLength-offset && offset <=y && y <= sideLength - offset){\n"
-        "        outColor = texture(s_TexSampler, v_texCoord);\n"
-        "    } else {\n"
-        "        outColor = vec4(1.0, 1.0, 1.0, 0.0);\n"
-        "    }\n"
+        //根据偏移量计算混合系数 alpha
+        "    float alpha = MAX_ALPHA * (1.0 - u_offset);\n"
+        // 根据偏移量计算混合系数 scale
+        "    float scale = 1.0 + u_offset * MAX_SCALE;\n"
+        // 缩放操作
+        "    float scale_x = 0.5 + (v_texCoord.x - 0.5) / scale;\n"
+        "    float scale_y = 0.5 + (v_texCoord.y - 0.5) / scale;\n"
+        "    vec2 scaleCoord = vec2(scale_x, scale_y);\n"
+        "    vec4 maskColor = texture(s_TexSampler, scaleCoord);\n"
+        "    vec4 originColor = texture(s_TexSampler, v_texCoord);\n"
+        // 加权混合
+        "    outColor = originColor * (1.0 - alpha) + maskColor * alpha;\n"
         "}\n";
 
 
-void GridInit(ESContext *esContext) {
+void SoulOutInit(ESContext *esContext) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if (!userData) {
         userData = new UserData();
@@ -79,17 +79,16 @@ void GridInit(ESContext *esContext) {
     } else {
         fShaderStr = (char *) f2DShaderStr;
     }
-
     GLuint program = CameraBaseLoadProgram(pUserDataBase, fShaderStr);
     if (!program) {
         return;
     }
+
     userData->s_TexSamplerLoc = glGetUniformLocation(program, "s_TexSampler");
     userData->u_offsetLoc = glGetUniformLocation(program, "u_offset");
-    userData->texSizeLoc = glGetUniformLocation(program, "texSize");
 }
 
-void GridUnInit(ESContext *esContext) {
+void SoulOutUnInit(ESContext *esContext) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if (!userData) {
         return;
@@ -100,8 +99,8 @@ void GridUnInit(ESContext *esContext) {
     esContext->userData = nullptr;
 }
 
-void GridSetCameraTexId(ESContext *esContext, GLuint texId, int texType, int width, int height,
-                        int facing) {
+void SoulOutSetCameraTexId(ESContext *esContext, GLuint texId, int texType, int width, int height,
+                           int facing) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if (!userData) {
         return;
@@ -110,12 +109,11 @@ void GridSetCameraTexId(ESContext *esContext, GLuint texId, int texType, int wid
                                              height, facing);
     if (shouldUpdate) {
         CameraBaseUpdateMatrix((UserDataBase *) userData, esContext->width, esContext->height);
-        userData->texSize = glm::vec2(1.0f * width, 1.0f * height);
-        GridInit(esContext);
+        SoulOutInit(esContext);
     }
 }
 
-void GridDraw(ESContext *esContext) {
+void SoulOutDraw(ESContext *esContext) {
     auto *userData = static_cast<UserData *>(esContext->userData);
     if (!userData) {
         return;
@@ -137,12 +135,10 @@ void GridDraw(ESContext *esContext) {
         glUniform1i(userData->s_TexSamplerLoc, 0);
     }
 
-    // 图片坐标
-    glUniform2fv(userData->texSizeLoc, 1, &userData->texSize[0]);
+    //计算offset
+    float progress = CameraBaseGetProgress(pUserDataBase, 20, 0, 0, 1);
 
-    // 网格偏移
-    float offset = 0.5f * CameraBaseGetProgress(pUserDataBase, 30, 1, 0, 1);
-    glUniform1f(userData->u_offsetLoc, offset);
+    glUniform1f(userData->u_offsetLoc, progress);
 
 
     CameraBaseAfterDraw(pUserDataBase);

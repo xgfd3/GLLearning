@@ -208,5 +208,5 @@ esLoadProgram2(const char *vertShaderSrc, const char *fragShaderSrc, void (*befo
 long esGetCurrClockTimeNs() {
     struct timespec time;
     clock_gettime(CLOCK_MONOTONIC, &time);
-    return time.tv_nsec;
+    return time.tv_sec * 1000 * 1000 * 1000 + time.tv_nsec;
 }
