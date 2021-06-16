@@ -5,7 +5,7 @@
 ## GLSample
 ![GLSample](https://github.com/xgfd3/GLLearning/blob/master/doc/GLSample.png)
 ## Camera采集和滤镜
-![GLCamera](https://github.com/xgfd3/GLLearning/blob/master/doc/GLCamear.png)
+![GLCamera](https://github.com/xgfd3/GLLearning/blob/master/doc/GLCamera.png)
 
 # 范例
 ## GLSample
