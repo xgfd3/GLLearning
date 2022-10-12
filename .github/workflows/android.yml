@@ -36,4 +36,7 @@ jobs:
         cat local.properties
         ./gradlew :app:assembleDebug
       
-    
+    - name: Upload Release Assets
+      uses: alexellis/upload-assets@0.3.0
+      with:
+        asset_paths: app/build/outputs/apk/debug/app-debug.apk
