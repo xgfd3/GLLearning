@@ -20,7 +20,18 @@ jobs:
         distribution: 'temurin'
         cache: gradle
 
+    - name: Config NDK
+      run: |
+        wget https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip
+        unzip android-ndk-r20b-linux-x86_64.zip
+        echo ANDROID_NDK_HOME:$ANDROID_NDK_HOME
+        ANDROID_NDK_HOME=$(pwd)/android-ndk-r20b
+        echo ANDROID_NDK_HOME:$ANDROID_NDK_HOME
+    
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew :app:assembleDebug
+      
+    
